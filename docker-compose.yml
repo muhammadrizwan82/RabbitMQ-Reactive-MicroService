@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: orderdb-container
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: orderdb
+      MYSQL_USER: orderdb
+      MYSQL_PASSWORD: orderdb123
+    ports:
+      - "3306:3306"
+
+  api:
+    build:
+      context: ./ReactiveMicroService.OrderService.API  # Specify the path to your API project directory
+      dockerfile: Dockerfile       # Specify the Dockerfile name if it's different from the default
+    container_name: orderservice-container
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Database=orderdb;User=orderdb;Password=orderdb123;"
+    ports:
+      - "5000:80"
