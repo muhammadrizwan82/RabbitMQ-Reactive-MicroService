@@ -3,7 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.OrderService.API", "ReactiveMicroService.OrderService.API\ReactiveMicroService.OrderService.API.csproj", "{D7F1F437-7178-4205-8FEA-E3A55ABEDA34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.ShipmentService.API", "RactiveMicroService.ShipmentService.API\ReactiveMicroService.ShipmentService.API.csproj", "{DC57DC15-B659-40FF-AEAC-4435ADE5F59B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.ReportService.API", "ReactiveMicroService.ReportService.API\ReactiveMicroService.ReportService.API.csproj", "{EAEBE806-4622-4333-97B1-35BA85A3DC5F}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7F1F437-7178-4205-8FEA-E3A55ABEDA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7F1F437-7178-4205-8FEA-E3A55ABEDA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7F1F437-7178-4205-8FEA-E3A55ABEDA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7F1F437-7178-4205-8FEA-E3A55ABEDA34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC57DC15-B659-40FF-AEAC-4435ADE5F59B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC57DC15-B659-40FF-AEAC-4435ADE5F59B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC57DC15-B659-40FF-AEAC-4435ADE5F59B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC57DC15-B659-40FF-AEAC-4435ADE5F59B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAEBE806-4622-4333-97B1-35BA85A3DC5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAEBE806-4622-4333-97B1-35BA85A3DC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAEBE806-4622-4333-97B1-35BA85A3DC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAEBE806-4622-4333-97B1-35BA85A3DC5F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
