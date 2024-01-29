@@ -1,6 +1,18 @@
 version: '3.1'
 
 services:
+
+  customerdb:
+    image: mysql:latest
+    container_name: customerdb-container
+    environment:
+      MYSQL_ROOT_PASSWORD: customeradmin123
+      MYSQL_DATABASE: customerdb
+      MYSQL_USER: customerdb
+      MYSQL_PASSWORD: customerdb123
+    ports:
+      - "3306:3306"
+
   orderdb:
     image: mysql:latest
     container_name: orderdb-container
@@ -10,7 +22,7 @@ services:
       MYSQL_USER: orderdb
       MYSQL_PASSWORD: orderdb123
     ports:
-      - "3306:3306"
+      - "3307:3306"
 
   shipmentdb:
     image: mysql:latest
@@ -21,7 +33,7 @@ services:
       MYSQL_USER: shipmentdb
       MYSQL_PASSWORD: shipmentdb123
     ports:
-      - "3306:3306"    
+      - "3308:3306"    
 
   reportdb:
     image: mysql:latest
@@ -32,43 +44,60 @@ services:
       MYSQL_USER: reportdb
       MYSQL_PASSWORD: reportdb123
     ports:
-      - "3306:3306"          
+      - "3309:3306"          
 
-  orderapi:
-    build:
-      context: .  # Specify the path to your API project directory
-      dockerfile: OrderDockerfile       # Specify the Dockerfile name if it's different from the default
-    container_name: orderservice-container
-    depends_on:
-      - orderdb
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=mysql;Database=orderdb;User=orderdb;Password=orderdb123;"
-    ports:
-      - "5000:80"
+  # customerapi:
+  #   build:
+  #     context: .  # Specify the path to your API project directory
+  #     dockerfile: CustomerDockerfile       # Specify the Dockerfile name if it's different from the default
+  #   container_name: customerservice-container
+  #   depends_on:
+  #     - customerdb
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ConnectionStrings__DefaultConnection: "Server=mysql;Database=customerdb;User=customerdb;Password=customerdb123;"
+  #   ports:
+  #     - "5000:80"
+  #     - "5001:443"
 
-  shipmentapi:
-    build:
-      context: .  # Specify the path to your API project directory
-      dockerfile: ShipmentDockerfile       # Specify the Dockerfile name if it's different from the default
-    container_name: shipmentservice-container
-    depends_on:
-      - shipmentdb
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=mysql;Database=shipmentdb;User=shipmentdb;Password=shipmentdb123;"
-    ports:
-      - "5000:80"
+  # orderapi:
+  #   build:
+  #     context: .  # Specify the path to your API project directory
+  #     dockerfile: OrderDockerfile       # Specify the Dockerfile name if it's different from the default
+  #   container_name: orderservice-container
+  #   depends_on:
+  #     - orderdb
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ConnectionStrings__DefaultConnection: "Server=mysql;Database=orderdb;User=orderdb;Password=orderdb123;"
+  #   ports:
+  #     - "6000:80"
+  #     - "6001:443"
 
-  reportapi:
-    build:
-      context: .  # Specify the path to your API project directory
-      dockerfile: ReportDockerfile       # Specify the Dockerfile name if it's different from the default
-    container_name: reportservice-container
-    depends_on:
-      - reportdb
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=mysql;Database=reportdb;User=reportdb;Password=reportdb123;"
-    ports:
-      - "5000:80"      
+  # shipmentapi:
+  #   build:
+  #     context: .  # Specify the path to your API project directory
+  #     dockerfile: ShipmentDockerfile       # Specify the Dockerfile name if it's different from the default
+  #   container_name: shipmentservice-container
+  #   depends_on:
+  #     - shipmentdb
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ConnectionStrings__DefaultConnection: "Server=mysql;Database=shipmentdb;User=shipmentdb;Password=shipmentdb123;"
+  #   ports:
+  #     - "7000:80"
+  #     - "7001:443"
+
+  # reportapi:
+  #   build:
+  #     context: .  # Specify the path to your API project directory
+  #     dockerfile: ReportDockerfile       # Specify the Dockerfile name if it's different from the default
+  #   container_name: reportservice-container
+  #   depends_on:
+  #     - reportdb
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ConnectionStrings__DefaultConnection: "Server=mysql;Database=reportdb;User=reportdb;Password=reportdb123;"
+  #   ports:
+  #     - "8000:80"      
+  #     - "8001:443"      

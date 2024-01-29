@@ -1,43 +1,71 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.Extensions.Options;
+using Plain.RabbitMQ;
+using ReactiveMicroService.OrderService.API.DTO;
+using ReactiveMicroService.OrderService.API.Models;
+using ReactiveMicroService.OrderService.API.Service;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ReactiveMicroService.OrderService.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class OrderController : ControllerBase
+    public class OrderController : GenericBaseController<Orders>
     {
-        // GET: api/<OrderController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly OrdersService _orderService;
+        private readonly IPublisher _publisher;
+
+        public OrderController(OrdersService orderService, IPublisher publisher) : base(orderService)
         {
-            return new string[] { "value1", "value2" };
+            _orderService = orderService;
+            _publisher = publisher;
         }
 
-        // GET api/<OrderController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPost("CreateNewOrder")]
+        public async Task<IActionResult> CreateNewOrder(OrderDTO orderDTO)
         {
-            return "value";
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var createdItem = await _orderService.CreateNewOrder(orderDTO);
+                    var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                        PropertyNameCaseInsensitive = true,
+                        // Other options as needed
+                    };
+                    
+                    _publisher.Publish(JsonSerializer.Serialize(createdItem, options), "report.neworder", null);
+                    return CreateResponse(201, true, "Item created successfully", createdItem);
+                }
+                else
+                {
+                    return CreateResponse(400, false, "Item data is not valid", orderDTO);
+                }
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error creating order: {ex.ToString()}", null);
+            }
         }
 
-        // POST api/<OrderController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpGet("GetOrderSummary")]
+        public async Task<IActionResult> GetOrderSummary(int OrderId)
         {
-        }
+            try
+            {
+                var entity = await _orderService.GetOrderSummary(OrderId);
+                if (entity == null)
+                {
+                    return CreateResponse(200, false, "Item not found", null);
+                }
 
-        // PUT api/<OrderController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<OrderController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+                return CreateResponse(200, true, "Item retrieved successfully", entity);
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
+            }
         }
     }
 }

@@ -16,7 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		ReactiveMicroService.OrderService.API\Dockerfile = ReactiveMicroService.OrderService.API\Dockerfile
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.Entity", "ReactiveMicroService.Entity\ReactiveMicroService.Entity.csproj", "{ECB4433C-AB8E-44B2-90DC-8103DC6F4201}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveMicroService.Entity", "ReactiveMicroService.Entity\ReactiveMicroService.Entity.csproj", "{ECB4433C-AB8E-44B2-90DC-8103DC6F4201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.CustomerService.API", "ReactiveMicroService.CustomerService.API\ReactiveMicroService.CustomerService.API.csproj", "{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,10 @@ Global
 		{ECB4433C-AB8E-44B2-90DC-8103DC6F4201}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECB4433C-AB8E-44B2-90DC-8103DC6F4201}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECB4433C-AB8E-44B2-90DC-8103DC6F4201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
