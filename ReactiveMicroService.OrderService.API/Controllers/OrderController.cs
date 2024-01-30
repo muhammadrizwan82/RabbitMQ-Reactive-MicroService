@@ -49,7 +49,7 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpGet("GetOrderSummary")]
+        [HttpGet("GetOrderSummary/{OrderId}")]
         public async Task<IActionResult> GetOrderSummary(int OrderId)
         {
             try

@@ -20,6 +20,59 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             _publisher = publisher;
         }
 
-         
+
+        [HttpPost("Signup")]
+        public async Task<IActionResult> Signup(CustomerSignupDTO customerDTO)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var createdItem = await _customersService.Signup(customerDTO, HttpContext);
+                    if (createdItem.Id == 0) {
+                        return CreateResponse(400, true, "Email already exists", customerDTO);
+                    }
+                    else
+                    {
+                        return CreateResponse(200, true, "Item created successfully", createdItem);
+                    }
+                }
+                else
+                {
+                    return CreateResponse(400, false, "Item data is not valid", customerDTO);
+                }
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
+            }
+        }
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(LoginDTO loginDTO)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var createdItem = await _customersService.Login(loginDTO, HttpContext);
+                    if (createdItem.EmailAddress != loginDTO.EmailAddress)
+                    {
+                        return CreateResponse(400, true, "Item data is not valid", loginDTO);
+                    }
+                    else
+                    {
+                        return CreateResponse(200, true, "login successfully", createdItem);
+                    }
+                }
+                else
+                {
+                    return CreateResponse(400, false, "Item data is not valid", loginDTO);
+                }
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
+            }
+        }
     }
 }

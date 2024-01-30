@@ -55,5 +55,11 @@ namespace ReactiveMicroService.CustomerService.API.Service
         {
             return await _repository.GetByColumns(filters);
         }
+
+        public async Task<T> FilterAsyncFirstOrDefault(Dictionary<string, object> filters)
+        {
+            return await _repository.GetByColumnsFirstOrDefault(filters);
+        }
+
     }
 }

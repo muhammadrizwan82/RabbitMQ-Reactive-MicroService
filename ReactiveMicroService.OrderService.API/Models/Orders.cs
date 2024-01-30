@@ -23,7 +23,6 @@ namespace ReactiveMicroService.OrderService.API.Models
 
         public int CustomerAddressId { get; set; }
 
-
         [NotMapped]
         public ICollection<OrderDetails>? OrderDetails { get; set; }
 

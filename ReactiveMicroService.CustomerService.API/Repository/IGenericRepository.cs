@@ -10,5 +10,6 @@ namespace ReactiveMicroService.CustomerService.API.Repository
         Task<T> Update(T entity);
         Task Delete(int id, T entity);
         Task<List<T>> GetByColumns(Dictionary<string, object> filters);
+        Task<T> GetByColumnsFirstOrDefault(Dictionary<string, object> filters);
     }
 }

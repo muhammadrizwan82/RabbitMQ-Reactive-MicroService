@@ -51,7 +51,7 @@ namespace ReactiveMicroService.OrderService.API.Controllers
                 if (ModelState.IsValid)
                 {
                     var createdItem = await _genericService.CreateAsync(item);                    
-                    return CreateResponse(201, true, "Item created successfully", createdItem);
+                    return CreateResponse(200, true, "Item created successfully", createdItem);
                 }
                 else
                 {

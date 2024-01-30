@@ -59,6 +59,18 @@ namespace ReactiveMicroService.CustomerService.API.Repository
             return await query.ToListAsync();
         }
 
+        public async Task<T> GetByColumnsFirstOrDefault(Dictionary<string, object> filters)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var filter in filters)
+            {
+                query = ApplyFilter(query, filter.Key, filter.Value);
+            }
+            var result = await query.FirstOrDefaultAsync<T>();
+            return result;
+        }
+
         private IQueryable<T> ApplyFilter(IQueryable<T> query, string columnName, object value)
         {
             ParameterExpression parameter = Expression.Parameter(typeof(T), "entity");

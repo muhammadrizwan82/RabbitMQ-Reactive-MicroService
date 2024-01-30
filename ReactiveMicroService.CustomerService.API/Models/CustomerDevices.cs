@@ -7,8 +7,12 @@ namespace ReactiveMicroService.CustomerService.API.Models
     public class CustomerDevices : BaseModel
     {        
         public int CustomerId { get; set; }        
-        public string DeviceId { get; set; }        
-        public string DeviceToken { get; set; }        
-        public string UserAgent { get; set; }
+        public string? DeviceId { get; set; }        
+        public string? DeviceToken { get; set; }        
+        public string? UserAgent { get; set; }
+
+        [ForeignKey("CustomerId")]
+        // Navigation property for the order
+        public virtual Customers Customer { get; set; }
     }
 }

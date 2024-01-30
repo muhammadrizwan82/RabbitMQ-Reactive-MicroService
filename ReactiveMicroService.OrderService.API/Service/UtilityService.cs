@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ReactiveMicroService.OrderService.API.Service
 {
@@ -8,6 +10,6 @@ namespace ReactiveMicroService.OrderService.API.Service
         {
             string hostName = Dns.GetHostName(); // Retrive the Name of HOST
             return Dns.GetHostByName(hostName).AddressList[0].ToString();
-        }
+        }       
     }
 }
