@@ -67,8 +67,8 @@ namespace ReactiveMicroService.CustomerService.API.Service
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                new Claim(ClaimTypes.NameIdentifier, customers.Id.ToString()),
-                new Claim(ClaimTypes.Name, customers.EmailAddress)
+                    new Claim(ClaimTypes.NameIdentifier, customers.Id.ToString()),
+                    new Claim(ClaimTypes.Email, customers.EmailAddress)
                 }),
                 Expires = DateTime.UtcNow.AddHours(48),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

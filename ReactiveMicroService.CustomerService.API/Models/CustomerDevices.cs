@@ -11,6 +11,7 @@ namespace ReactiveMicroService.CustomerService.API.Models
         public string? DeviceToken { get; set; }        
         public string? UserAgent { get; set; }
 
+        [NotMapped]        
         [ForeignKey("CustomerId")]
         // Navigation property for the order
         public virtual Customers Customer { get; set; }

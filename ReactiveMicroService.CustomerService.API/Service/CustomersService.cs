@@ -9,6 +9,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
     {
         private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<CustomerDevices> _customerDeviceRepository;
+
         private readonly UtilityService _utilityService;
 
         public CustomersService(

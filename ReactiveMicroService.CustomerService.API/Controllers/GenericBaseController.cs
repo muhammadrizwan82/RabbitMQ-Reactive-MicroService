@@ -5,9 +5,10 @@ using ReactiveMicroService.CustomerService.API.Service;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ReactiveMicroService.CustomerService.API.Controllers
-{
+{    
     [Route("api/[controller]")]
     [ApiController]
     public abstract class GenericBaseController<T> : ControllerBase where T : BaseModel
@@ -18,7 +19,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
         {
             _genericService = genericService;
         }
-
+        
         protected IActionResult CreateResponse(int statusCode, bool success, string? message, object? data)
         {
             // When serializing or deserializing objects
@@ -42,7 +43,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
 
             return StatusCode(statusCode, response);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(T item)
         {
@@ -63,7 +64,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
             }
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -82,7 +83,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
             }
         }
-
+        [Authorize]
         [HttpGet("GetOrderByKeyValue")]
         public async Task<IActionResult> GetByColumns(Dictionary<string,object> filters)
         {
@@ -101,7 +102,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
             }
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -115,7 +116,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving items: {ex.Message}", null);
             }
         }
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, T item)
         {
@@ -143,7 +144,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error updating item: {ex.Message}", null);
             }
         }
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remove(int id)
         {

@@ -62,4 +62,51 @@ namespace ReactiveMicroService.CustomerService.API.DTO
          
         public string? Token { get; set; }
     }
+    public class CustomerAddressDTO
+    {
+        [Required(ErrorMessage = "Country is required")]
+        [StringLength(100, ErrorMessage = "Country must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^[a-zA-Z]{1,100}$", ErrorMessage = "Country must contain alphabets only")]
+        public string? Country { get; set; }
+
+        [Required(ErrorMessage = "CountryIso2Code is required")]
+        [StringLength(2, ErrorMessage = "CountryIso2Code must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^[A-Za-z]{2}$", ErrorMessage = "CountryIso2Code must contain alphabets only")]
+        public string? CountryIso2Code { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        public string? State { get; set; }
+
+        [Required(ErrorMessage = "City is required")]
+        [StringLength(100, ErrorMessage = "City must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "City must contain alphabets only")]
+        public string? City { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        public string? Town { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        public string? Area { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        public string? Sector { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        public string? Lane { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
+        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        public string? HouseNumber { get; set; }
+    }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Plain.RabbitMQ;
 using RabbitMQ.Client;
+using ReactiveMicroService.CustomerService.API.Configuration;
 using ReactiveMicroService.CustomerService.API.Models;
 using ReactiveMicroService.CustomerService.API.Repository;
 using ReactiveMicroService.CustomerService.API.Service;
@@ -26,17 +27,17 @@ builder.Services.AddScoped<IPublisher>(x => new Publisher(x.GetService<IConnecti
     ExchangeType.Topic));
 builder.Services.AddScoped(typeof(IGenericRepository<Customers>), typeof(GenericRepository<DBContext, Customers>));
 builder.Services.AddScoped(typeof(IGenericRepository<CustomerDevices>), typeof(GenericRepository<DBContext, CustomerDevices>));
+builder.Services.AddScoped(typeof(IGenericRepository<CustomerAddresses>), typeof(GenericRepository<DBContext, CustomerAddresses>));
 builder.Services.AddScoped<UtilityService>();
 builder.Services.AddScoped<CustomersService>();
 builder.Services.AddScoped<CustomerDevicesService>();
+builder.Services.AddScoped<CustomerAddressesService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+builder.Services.AddScoped<JwtTokenMiddleware>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -68,6 +69,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer Service API");
 });
+app.UseMiddleware<JwtTokenMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

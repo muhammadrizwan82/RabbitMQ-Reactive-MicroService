@@ -20,7 +20,6 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             _publisher = publisher;
         }
 
-
         [HttpPost("Signup")]
         public async Task<IActionResult> Signup(CustomerSignupDTO customerDTO)
         {
@@ -47,6 +46,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
             }
         }
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
