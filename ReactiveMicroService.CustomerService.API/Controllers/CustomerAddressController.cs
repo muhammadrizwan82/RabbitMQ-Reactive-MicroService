@@ -13,11 +13,13 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
     {
         private readonly CustomerAddressesService _customerAddressesService;
         private readonly IPublisher _publisher;
+        private readonly UtilityService _utilityService;
 
-        public CustomerAddressController(CustomerAddressesService customerAddressesService, IPublisher publisher) : base(customerAddressesService)
+        public CustomerAddressController(CustomerAddressesService customerAddressesService, IPublisher publisher, UtilityService utilityService) : base(customerAddressesService)
         {
             _customerAddressesService = customerAddressesService;
             _publisher = publisher;
+            _utilityService = utilityService;
         }
 
         [HttpPost("CreateCustomerAddress")]
@@ -26,14 +28,9 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             try
             {
                 if (ModelState.IsValid)
-                {
-                    var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                    // Parse and validate JWT token to get user information
-                    var handler = new JwtSecurityTokenHandler();
-                    var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
-
-                    var customerId = int.Parse(jsonToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-                    var createdItem = await _customerAddressesService.AddCustomerAddress(customerAddressDTO, customerId);
+                {                    
+                    var createdItem = await _customerAddressesService.AddCustomerAddress(customerAddressDTO, 
+                        int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
                     if (createdItem.Id == 0)
                     {
                         return CreateResponse(400, true, "Item not created", null);

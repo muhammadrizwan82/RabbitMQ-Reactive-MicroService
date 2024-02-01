@@ -64,6 +64,7 @@ namespace ReactiveMicroService.OrderService.API.Service
                     }
                 }
                 insertedOrder.OrderDetails = insertedOrderDetailList;
+                await _utilityService.AddDatatoQueue(insertedOrder, "order.new");
                 return insertedOrder;
             }
             else

@@ -11,6 +11,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
 {    
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public abstract class GenericBaseController<T> : ControllerBase where T : BaseModel
     {
         private readonly GenericService<T> _genericService;
@@ -43,7 +44,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
 
             return StatusCode(statusCode, response);
         }
-        [Authorize]
+       
         [HttpPost]
         public async Task<IActionResult> Create(T item)
         {
@@ -64,7 +65,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
             }
         }
-        [Authorize]
+       
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -83,7 +84,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
             }
         }
-        [Authorize]
+       
         [HttpGet("GetOrderByKeyValue")]
         public async Task<IActionResult> GetByColumns(Dictionary<string,object> filters)
         {
@@ -102,7 +103,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
             }
         }
-        [Authorize]
+        
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -116,7 +117,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving items: {ex.Message}", null);
             }
         }
-        [Authorize]
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, T item)
         {
@@ -144,7 +145,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error updating item: {ex.Message}", null);
             }
         }
-        [Authorize]
+         
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remove(int id)
         {

@@ -11,13 +11,11 @@ namespace ReactiveMicroService.OrderService.API.Controllers
 {
     public class OrderController : GenericBaseController<Orders>
     {
-        private readonly OrdersService _orderService;
-        private readonly IPublisher _publisher;
+        private readonly OrdersService _orderService; 
 
-        public OrderController(OrdersService orderService, IPublisher publisher) : base(orderService)
+        public OrderController(OrdersService orderService) : base(orderService)
         {
             _orderService = orderService;
-            _publisher = publisher;
         }
 
         [HttpPost("CreateNewOrder")]
@@ -34,8 +32,7 @@ namespace ReactiveMicroService.OrderService.API.Controllers
                         PropertyNameCaseInsensitive = true,
                         // Other options as needed
                     };
-                    
-                    _publisher.Publish(JsonSerializer.Serialize(createdItem, options), "report.neworder", null);
+                                        
                     return CreateResponse(201, true, "Item created successfully", createdItem);
                 }
                 else

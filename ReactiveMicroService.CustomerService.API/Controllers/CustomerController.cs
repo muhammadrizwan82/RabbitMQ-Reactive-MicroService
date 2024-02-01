@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Plain.RabbitMQ;
 using ReactiveMicroService.CustomerService.API.DTO;
@@ -11,15 +12,14 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
 {
     public class CustomerController : GenericBaseController<Customers>
     {
-        private readonly CustomersService _customersService;
-        private readonly IPublisher _publisher;
+        private readonly CustomersService _customersService; 
 
         public CustomerController(CustomersService customersService, IPublisher publisher) : base(customersService)
         {
-            _customersService = customersService;
-            _publisher = publisher;
+            _customersService = customersService; 
         }
 
+        [AllowAnonymous]
         [HttpPost("Signup")]
         public async Task<IActionResult> Signup(CustomerSignupDTO customerDTO)
         {
@@ -47,6 +47,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
@@ -57,7 +58,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                     var createdItem = await _customersService.Login(loginDTO, HttpContext);
                     if (createdItem.EmailAddress != loginDTO.EmailAddress)
                     {
-                        return CreateResponse(400, true, "Item data is not valid", loginDTO);
+                        return CreateResponse(401, true, "Invalid user credential", loginDTO);
                     }
                     else
                     {
@@ -66,7 +67,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 }
                 else
                 {
-                    return CreateResponse(400, false, "Item data is not valid", loginDTO);
+                    return CreateResponse(400, false, "Invalid user request", loginDTO);
                 }
             }
             catch (Exception ex)

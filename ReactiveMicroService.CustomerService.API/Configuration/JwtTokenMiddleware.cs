@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
+using ReactiveMicroService.CustomerService.API.DTO;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ReactiveMicroService.CustomerService.API.Configuration
 {
@@ -23,7 +26,7 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
             _tokenValidationParameters = new TokenValidationParameters
             {
 
-                ValidateIssuerSigningKey = true,                
+                ValidateIssuerSigningKey = true,
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = false,
@@ -37,14 +40,22 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             var controllerActionDescriptor = context.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
-             
-            if (controllerActionDescriptor.ControllerName != "customers" && controllerActionDescriptor.ActionName.ToLower() != "login")
+
+            if (controllerActionDescriptor.ControllerName != "customers" && (controllerActionDescriptor.ActionName.ToLower() != "login" &&
+                    controllerActionDescriptor.ActionName.ToLower() != "signup"))
             {
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
                 if (string.IsNullOrEmpty(token))
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync("Missing JWT token");
+                    var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                        PropertyNameCaseInsensitive = true,
+                        // Other options as needed
+                    };
+                    var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
+                    await context.Response.WriteAsync(response);
                     return;
                 }
 
@@ -80,7 +91,7 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
             }
             else
             {
-                await next(context); ;
+                await next(context);
             }
         }
     }

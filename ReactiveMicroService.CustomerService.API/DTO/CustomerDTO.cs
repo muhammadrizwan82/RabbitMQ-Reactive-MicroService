@@ -9,8 +9,8 @@ namespace ReactiveMicroService.CustomerService.API.DTO
         public string? EmailAddress { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
-        [StringLength(10, ErrorMessage = "Must be between 5 and 10 characters", MinimumLength = 5)]
-        [RegularExpression("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^\\w\\d\\s]).{5,10}$"
+        [StringLength(10, ErrorMessage = "Password be between 5 and 10 characters", MinimumLength = 5)]
+        [RegularExpression("^(?=.*[A-Z])(?=.*[!@#$%^&*()-+])(?=.*\\d.*\\d)[a-zA-Z\\d!@#$%^&*()-+]{5,10}$"
             , ErrorMessage = "Password must contain atleast 5 character with one capital letter,one special character and one number")]        
         public string? Password { get; set; }
 
@@ -61,6 +61,8 @@ namespace ReactiveMicroService.CustomerService.API.DTO
         public string? EmailAddress { get; set; }
          
         public string? Token { get; set; }
+
+        public string? Message { get; set; }
     }
     public class CustomerAddressDTO
     {
@@ -76,37 +78,37 @@ namespace ReactiveMicroService.CustomerService.API.DTO
 
         [Required(ErrorMessage = "State is required")]
         [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "State only allow alphabets, numbers and characters")]
         public string? State { get; set; }
 
         [Required(ErrorMessage = "City is required")]
         [StringLength(100, ErrorMessage = "City must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "City must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "City only allow alphabets, numbers and characters")]
         public string? City { get; set; }
 
         [Required(ErrorMessage = "State is required")]
         [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "State only allow alphabets, numbers and characters")]
         public string? Town { get; set; }
 
         [Required(ErrorMessage = "State is required")]
         [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "State only allow alphabets, numbers and characters")]
         public string? Area { get; set; }
 
         [Required(ErrorMessage = "State is required")]
         [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "State only allow alphabets, numbers and characters")]
         public string? Sector { get; set; }
 
         [Required(ErrorMessage = "State is required")]
         [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "State only allow alphabets, numbers and characters")]
         public string? Lane { get; set; }
 
         [Required(ErrorMessage = "State is required")]
         [StringLength(100, ErrorMessage = "State must be between 1 and 50 characters", MinimumLength = 1)]
-        [RegularExpression("^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d\\s.'\\-]+$", ErrorMessage = "State must contain alphabets only")]
+        [RegularExpression("^[a-zA-Z0-9!@#$%^&*()-_+=\\[\\]{}|\\\\;:'\",.<>?\\/ ]{1,100}$", ErrorMessage = "State only allow alphabets, numbers and characters")]
         public string? HouseNumber { get; set; }
     }
 }

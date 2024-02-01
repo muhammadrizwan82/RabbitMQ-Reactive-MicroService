@@ -8,17 +8,24 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ReactiveMicroService.CustomerService.API.Models;
+using Plain.RabbitMQ;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ReactiveMicroService.CustomerService.API.Service
 {
-    public class UtilityService 
+    public class UtilityService  
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _iConfiguration;
-        public UtilityService(IHttpContextAccessor httpContextAccessor, IConfiguration iConfiguration)
+        private readonly IPublisher _publisher;
+
+        public UtilityService(IHttpContextAccessor httpContextAccessor, IConfiguration iConfiguration, IPublisher publisher)
         {
             _httpContextAccessor = httpContextAccessor;
             _iConfiguration = iConfiguration;
+            _publisher = publisher;
         }
 
         public string? GetClientIP()
@@ -61,20 +68,38 @@ namespace ReactiveMicroService.CustomerService.API.Service
 
         public string GenerateJwtToken(Customers customers)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_iConfiguration["Jwt:SecretKey"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_iConfiguration["Jwt:SecretKey"]));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+            var tokeOptions = new JwtSecurityToken(
+                issuer: _iConfiguration["Jwt:Issuer"], 
+                audience: _iConfiguration["Jwt:Audience"], 
+                claims: new List<Claim>() {
                     new Claim(ClaimTypes.NameIdentifier, customers.Id.ToString()),
                     new Claim(ClaimTypes.Email, customers.EmailAddress)
-                }),
-                Expires = DateTime.UtcNow.AddHours(48),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                }, expires: DateTime.UtcNow.AddHours(24), signingCredentials: signinCredentials);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+
+            return tokenString; 
+        }
+
+        public async Task<int> GetAuthorizeCustomerId(HttpContext httpContext)
+        {
+            var token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            // Parse and validate JWT token to get user information
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            return int.Parse(jsonToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        }
+
+        public async Task AddDatatoQueue(object item,string rotuingKey) {
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                PropertyNameCaseInsensitive = true,
+                // Other options as needed
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, null);
         }
     }
 }

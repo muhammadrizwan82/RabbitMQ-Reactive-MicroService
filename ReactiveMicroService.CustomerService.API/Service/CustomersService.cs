@@ -2,6 +2,10 @@
 using ReactiveMicroService.CustomerService.API.DTO;
 using ReactiveMicroService.CustomerService.API.Models;
 using ReactiveMicroService.CustomerService.API.Repository;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using Plain.RabbitMQ;
+using Microsoft.Extensions.Options;
 
 namespace ReactiveMicroService.CustomerService.API.Service
 {
@@ -9,7 +13,6 @@ namespace ReactiveMicroService.CustomerService.API.Service
     {
         private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<CustomerDevices> _customerDeviceRepository;
-
         private readonly UtilityService _utilityService;
 
         public CustomersService(
@@ -68,13 +71,17 @@ namespace ReactiveMicroService.CustomerService.API.Service
                             insertedCustomer.CustomerDevices = customerDeviceList;
                         }
                     }
+
+                    await _utilityService.AddDatatoQueue(insertedCustomer, "customer.new");
+
+
                 }
             }
 
             return insertedCustomer;
         }
         public async Task<LoginToken> Login(LoginDTO loginDTO, HttpContext httpContext)
-        {            
+        {
             var loginToken = new LoginToken();
             try
             {
@@ -92,9 +99,9 @@ namespace ReactiveMicroService.CustomerService.API.Service
                         { "DeviceId", loginDTO.DeviceId },
                         { "CustomerId", insertedCustomer.Id }
                     });
-
                     loginToken.Token = _utilityService.GenerateJwtToken(insertedCustomer);
                     loginToken.EmailAddress = insertedCustomer.EmailAddress;
+
                     if (existingDevice != null)
                     {
                         var insertedCustomerDevice = new CustomerDevices();
@@ -107,12 +114,15 @@ namespace ReactiveMicroService.CustomerService.API.Service
                             DeviceId = loginDTO.DeviceId,
                             UserAgent = _utilityService.GetUserAgent(),
                             DeviceToken = await _utilityService.GetDeviceTokenAsync(httpContext)
-                        });                         
+                        });
+
+                        await _utilityService.AddDatatoQueue(insertedCustomer, "customer.device");
                     }
                 }
             }
             catch (Exception ex)
             {
+                loginToken.Message = ex.Message;
             }
 
             return loginToken;

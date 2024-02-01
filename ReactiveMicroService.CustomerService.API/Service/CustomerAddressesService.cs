@@ -31,9 +31,12 @@ namespace ReactiveMicroService.CustomerService.API.Service
                 Lane = customerAddressDTO.Lane,
                 Sector = customerAddressDTO.Sector,
                 State = customerAddressDTO.State,
-                Town = customerAddressDTO.Town
+                Town = customerAddressDTO.Town,
+                CreatedAt = DateTime.UtcNow,                
             });
-
+            if (insertedCustomerAddress != null) {
+                await _utilityService.AddDatatoQueue(insertedCustomerAddress, "customer.address");
+            }
             return insertedCustomerAddress;
         }
     }
