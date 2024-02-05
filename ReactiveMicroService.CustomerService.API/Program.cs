@@ -22,9 +22,7 @@ builder.Services.AddDbContext<DBContext>(options =>
 });
 
 builder.Services.AddSingleton<IConnectionProvider>(new ConnectionProvider(rabbitMqConnection));
-builder.Services.AddScoped<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),
-"report-exchange",
-    ExchangeType.Topic));
+builder.Services.AddScoped<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),"report-exchange",  ExchangeType.Topic));
 builder.Services.AddScoped(typeof(IGenericRepository<Customers>), typeof(GenericRepository<DBContext, Customers>));
 builder.Services.AddScoped(typeof(IGenericRepository<CustomerDevices>), typeof(GenericRepository<DBContext, CustomerDevices>));
 builder.Services.AddScoped(typeof(IGenericRepository<CustomerAddresses>), typeof(GenericRepository<DBContext, CustomerAddresses>));
@@ -35,7 +33,7 @@ builder.Services.AddScoped<CustomerAddressesService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddScoped<JwtTokenMiddleware>();
+builder.Services.AddScoped<AuthMiddleware>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -69,7 +67,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer Service API");
 });
-app.UseMiddleware<JwtTokenMiddleware>();
+app.UseMiddleware<AuthMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

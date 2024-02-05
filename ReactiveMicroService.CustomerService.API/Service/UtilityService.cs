@@ -92,14 +92,15 @@ namespace ReactiveMicroService.CustomerService.API.Service
             return int.Parse(jsonToken?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
         }
 
-        public async Task AddDatatoQueue(object item,string rotuingKey) {
+        public async Task AddDatatoQueue(object item,string rotuingKey,Dictionary<string,object> headers) {
             var options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 PropertyNameCaseInsensitive = true,
                 // Other options as needed
             };
-            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, null);
+            
+            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, headers);
         }
     }
 }

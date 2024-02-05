@@ -27,15 +27,16 @@ namespace ReactiveMicroService.OrderService.API.Service
             return Dns.GetHostByName(hostName).AddressList[0].ToString();
         }
 
-        public async Task AddDatatoQueue(object item, string rotuingKey)
+        public async Task AddDatatoQueue(object item, string rotuingKey, Dictionary<string, object> headers)
         {
             var options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 PropertyNameCaseInsensitive = true,
                 // Other options as needed
-            };
-            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, null);
+            }; 
+
+            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, headers );
         }
     }
 }

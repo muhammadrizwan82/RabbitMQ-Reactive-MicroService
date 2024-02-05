@@ -6,10 +6,6 @@ namespace ReactiveMicroService.OrderService.API.DTO
     {
         [Required]
         [Range(1, int.MaxValue)]
-        public int CustomerId { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue)]
         public int CustomerAddressId { get; set; }
 
         [Required]        
@@ -40,5 +36,14 @@ namespace ReactiveMicroService.OrderService.API.DTO
         [Range(double.MinValue, double.MaxValue)]
         public double UnitProductDiscount { get; set; }
 
+    }
+
+    public class LoginToken
+    {
+        public string? EmailAddress { get; set; }
+
+        public string? Token { get; set; }
+
+        public string? Message { get; set; }
     }
 }

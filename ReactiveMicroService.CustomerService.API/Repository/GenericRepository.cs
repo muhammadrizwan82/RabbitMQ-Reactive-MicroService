@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -34,11 +35,80 @@ namespace ReactiveMicroService.CustomerService.API.Repository
             return insertedEntity.Entity;
         }
 
-        public async Task<T> Update(T entity)
+        public async Task<T> Update(int id, T entity, params Expression<Func<T, object>>[] propertiesToExclude)
         {
-            _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
-            return entity;
+            // Retrieve the existing entity from the database
+            var existingEntity = await _dbSet.FindAsync(id);
+
+            if (existingEntity == null)
+            {
+                throw new ArgumentException("Entity not found.");
+            }
+
+            try
+            {
+                // Update only the properties that are allowed to be modified
+                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+
+                // Mark specific properties as unchanged to exclude them from the update
+                foreach (var property in propertiesToExclude)
+                {
+                    _dbContext.Entry(existingEntity).Property(property).IsModified = false;
+                }
+
+                // Save changes to the database
+                await _dbContext.SaveChangesAsync();
+
+                return existingEntity;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while updating the entity.", ex);
+            }
+        }
+
+        public async Task<T> Update(int id, T entity)
+        {
+            // Retrieve the existing entity from the database
+            var existingEntity = await _dbSet.FindAsync(id);
+
+            if (existingEntity == null)
+            {
+                throw new ArgumentException("Entity not found.");
+            }
+
+            try
+            {
+                // Update only the properties that are allowed to be modified
+
+                // Mark foreign key properties as unchanged to avoid modification
+                foreach (var property in _dbContext.Entry(existingEntity).Properties)
+                {
+                    if (property.Metadata.IsForeignKey())
+                    {
+                        property.IsModified = false;
+                    }
+                    if (property.Metadata.Name == "CreatedBy")
+                    {
+                        property.IsModified = false;
+                    }
+                    if (property.Metadata.Name == "CreatedIP")
+                    {
+                        property.IsModified = false;
+                    }
+                }
+
+                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+
+                // Save changes to the database
+                await _dbContext.SaveChangesAsync();
+
+                return existingEntity;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while updating the entity {ex.Message}");
+            }
         }
 
         public async Task Delete(int id, T entity)

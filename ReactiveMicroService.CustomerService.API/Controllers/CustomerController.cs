@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Plain.RabbitMQ;
@@ -26,7 +27,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             try
             {
                 if (ModelState.IsValid)
-                {
+                {                    
                     var createdItem = await _customersService.Signup(customerDTO, HttpContext);
                     if (createdItem.Id == 0) {
                         return CreateResponse(400, true, "Email already exists", customerDTO);

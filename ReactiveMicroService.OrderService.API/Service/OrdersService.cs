@@ -19,18 +19,18 @@ namespace ReactiveMicroService.OrderService.API.Service
             _utilityService = utilityService;
         }
 
-        public async Task<Orders> CreateNewOrder(OrderDTO orderDTO)
+        public async Task<Orders> CreateNewOrder(OrderDTO orderDTO, int CustomerId)
         {
             var insertedOrder = await _orderRepository.Insert(new Orders()
             {
                 CustomerAddressId = orderDTO.CustomerAddressId,
-                CustomerId = orderDTO.CustomerId,
+                CustomerId = CustomerId,
                 DiscountPercentage = orderDTO.DiscountPercentage,
                 OrderDescription = orderDTO.OrderDescription,
                 ShipmentStatus = "Pending",
                 ShipmentStatusDiscription = "New Unpaid Order",
                 ShipmentStatusId = (int)OrderStatus.OrderPending,
-                CreatedBy = orderDTO.CustomerId,
+                CreatedBy = CustomerId,
                 CreatedAt = DateTime.UtcNow,
                 CreatedIP = _utilityService.GetClientIP(),
                 IsActive = true,
@@ -45,7 +45,7 @@ namespace ReactiveMicroService.OrderService.API.Service
                 {
                     var insertedOrderDetail = await _orderDetailRepository.Insert(new OrderDetails()
                     {
-                        CreatedBy = orderDTO.CustomerId,
+                        CreatedBy = insertedOrder.CustomerId,
                         CreatedAt = DateTime.UtcNow,
                         CreatedIP = _utilityService.GetClientIP(),
                         IsActive = true,
@@ -64,7 +64,9 @@ namespace ReactiveMicroService.OrderService.API.Service
                     }
                 }
                 insertedOrder.OrderDetails = insertedOrderDetailList;
-                await _utilityService.AddDatatoQueue(insertedOrder, "order.new");
+                await _utilityService.AddDatatoQueue(insertedOrder, "report.order", new Dictionary<string, object>() {
+                    { "order","new"}
+                });
                 return insertedOrder;
             }
             else

@@ -24,7 +24,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
                 City = customerAddressDTO.City,
                 Country = customerAddressDTO.Country,
                 CountryIso2Code = customerAddressDTO.CountryIso2Code,
-                CreatedIP = _utilityService.GetClientIP(),
+                CreatedIP = _utilityService.GetClientIP(),                
                 CreatedBy = CustomerId,
                 CustomerId = CustomerId,
                 HouseNumber = customerAddressDTO.HouseNumber,
@@ -35,7 +35,8 @@ namespace ReactiveMicroService.CustomerService.API.Service
                 CreatedAt = DateTime.UtcNow,                
             });
             if (insertedCustomerAddress != null) {
-                await _utilityService.AddDatatoQueue(insertedCustomerAddress, "customer.address");
+                await _utilityService.AddDatatoQueue(insertedCustomerAddress, "report.customeraddress"
+                        , new Dictionary<string, object> { { "customeraddress", "new" } });
             }
             return insertedCustomerAddress;
         }

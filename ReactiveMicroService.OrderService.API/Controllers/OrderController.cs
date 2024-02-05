@@ -4,6 +4,7 @@ using Plain.RabbitMQ;
 using ReactiveMicroService.OrderService.API.DTO;
 using ReactiveMicroService.OrderService.API.Models;
 using ReactiveMicroService.OrderService.API.Service;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,14 +26,8 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var createdItem = await _orderService.CreateNewOrder(orderDTO);
-                    var options = new JsonSerializerOptions
-                    {
-                        ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                        PropertyNameCaseInsensitive = true,
-                        // Other options as needed
-                    };
-                                        
+                    var createdItem = await _orderService.CreateNewOrder(orderDTO,
+                        int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value));                                   
                     return CreateResponse(201, true, "Item created successfully", createdItem);
                 }
                 else

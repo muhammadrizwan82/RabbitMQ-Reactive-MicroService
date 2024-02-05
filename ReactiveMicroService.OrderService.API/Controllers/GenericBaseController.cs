@@ -5,11 +5,13 @@ using ReactiveMicroService.OrderService.API.Service;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ReactiveMicroService.OrderService.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public abstract class GenericBaseController<T> : ControllerBase where T : BaseModel
     {
         private readonly GenericService<T> _genericService;

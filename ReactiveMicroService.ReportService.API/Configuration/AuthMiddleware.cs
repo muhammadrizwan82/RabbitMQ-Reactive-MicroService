@@ -1,23 +1,21 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
-using ReactiveMicroService.CustomerService.API.DTO;
+using ReactiveMicroService.ReportService.API.DTO;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ReactiveMicroService.CustomerService.API.Configuration
+namespace ReactiveMicroService.ReportService.API.Configuration
 {
-    public class JwtTokenMiddleware : IMiddleware
+    public class AuthMiddleware : IMiddleware
     {
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IConfiguration _configuration;
 
-        public JwtTokenMiddleware(IConfiguration configuration)
+        public AuthMiddleware(IConfiguration configuration)
         {
             _configuration = configuration;
             _tokenHandler = new JwtSecurityTokenHandler();

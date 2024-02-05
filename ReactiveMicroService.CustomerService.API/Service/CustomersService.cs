@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Plain.RabbitMQ;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace ReactiveMicroService.CustomerService.API.Service
 {
@@ -43,6 +44,8 @@ namespace ReactiveMicroService.CustomerService.API.Service
                     LastName = customerDTO.LastName,
                     FullName = $"{customerDTO.FirstName} {customerDTO.LastName}",
                     PhoneNumber = customerDTO.PhoneNumber.ToString(),
+                    CreatedBy = 1,
+                    CreatedAt = DateTime.UtcNow
                 });
                 if (insertedCustomer != null)
                 {
@@ -58,6 +61,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
                         insertedCustomerDevice = await _customerDeviceRepository.Insert(new CustomerDevices()
                         {
                             CreatedIP = _utilityService.GetClientIP(),
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = insertedCustomer.Id,
                             CustomerId = insertedCustomer.Id,
                             DeviceId = customerDTO.DeviceId,
@@ -70,9 +74,9 @@ namespace ReactiveMicroService.CustomerService.API.Service
                             customerDeviceList.Add(insertedCustomerDevice);
                             insertedCustomer.CustomerDevices = customerDeviceList;
                         }
-                    }
-
-                    await _utilityService.AddDatatoQueue(insertedCustomer, "customer.new");
+                    }                    
+                    await _utilityService.AddDatatoQueue(insertedCustomer, "report.customer"
+                            , new Dictionary<string, object> { { "customer", "new" } });
 
 
                 }
@@ -109,6 +113,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
                         insertedCustomerDevice = await _customerDeviceRepository.Insert(new CustomerDevices()
                         {
                             CreatedIP = _utilityService.GetClientIP(),
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = insertedCustomer.Id,
                             CustomerId = insertedCustomer.Id,
                             DeviceId = loginDTO.DeviceId,
@@ -116,7 +121,8 @@ namespace ReactiveMicroService.CustomerService.API.Service
                             DeviceToken = await _utilityService.GetDeviceTokenAsync(httpContext)
                         });
 
-                        await _utilityService.AddDatatoQueue(insertedCustomer, "customer.device");
+                        await _utilityService.AddDatatoQueue(insertedCustomer, "report.customerdevice"
+                            , new Dictionary<string, object> { { "customerdevice", "new" } });
                     }
                 }
             }

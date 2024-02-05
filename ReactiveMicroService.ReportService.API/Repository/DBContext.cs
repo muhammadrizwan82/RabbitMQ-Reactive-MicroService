@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ReactiveMicroService.CustomerService.API.Models;
-using System.Reflection.Metadata;
+using ReactiveMicroService.ReportService.API.Models;
 
-namespace ReactiveMicroService.CustomerService.API.Repository
+namespace ReactiveMicroService.ReportService.API.Repository
 {
     public class DBContext : GenericDBContext<DBContext>
     {
@@ -12,7 +10,7 @@ namespace ReactiveMicroService.CustomerService.API.Repository
         public DbSet<Customers> Customers { get; set; }
         public DbSet<CustomerDevices> CustomerDevices { get; set; }
         public DbSet<CustomerAddresses> CustomerAddresses { get; set; }
-
- 
+        public DbSet<Orders> Order { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
     }
 }

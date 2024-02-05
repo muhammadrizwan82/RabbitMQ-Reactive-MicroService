@@ -6,9 +6,10 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace ReactiveMicroService.CustomerService.API.Controllers
-{    
+{
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -20,13 +21,13 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
         {
             _genericService = genericService;
         }
-        
+
         protected IActionResult CreateResponse(int statusCode, bool success, string? message, object? data)
         {
             // When serializing or deserializing objects
             var options = new JsonSerializerOptions
             {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles, 
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 PropertyNameCaseInsensitive = true,
                 // Other options as needed
             };
@@ -44,7 +45,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
 
             return StatusCode(statusCode, response);
         }
-       
+
         [HttpPost]
         public async Task<IActionResult> Create(T item)
         {
@@ -52,7 +53,8 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var createdItem = await _genericService.CreateAsync(item);                    
+                    var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                    var createdItem = await _genericService.CreateAsync(item, controllerActionDescriptor.ControllerName);
                     return CreateResponse(200, true, "Item created successfully", createdItem);
                 }
                 else
@@ -65,13 +67,13 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
             }
         }
-       
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var entity = await _genericService.GetAsync(id);
+                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
                 if (entity == null)
                 {
                     return CreateResponse(200, false, "Item not found", null);
@@ -84,12 +86,12 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
             }
         }
-       
-        [HttpGet("GetOrderByKeyValue")]
-        public async Task<IActionResult> GetByColumns(Dictionary<string,object> filters)
+
+        [HttpGet("GetByKeyValue")]
+        public async Task<IActionResult> GetByColumns(Dictionary<string, object> filters)
         {
             try
-            {           
+            {
                 var entity = await _genericService.FilterAsync(filters);
                 if (entity == null)
                 {
@@ -103,8 +105,8 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
             }
         }
-        
-        [HttpGet]
+
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -117,23 +119,27 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error retrieving items: {ex.Message}", null);
             }
         }
-        
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, T item)
+
+        [HttpPut]
+        public async Task<IActionResult> Update(T item)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var entity = await _genericService.GetAsync(id);
+                    
+                    var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
                     if (entity != null)
-                    {                        
-                        var response = await _genericService.UpdateAsync(id,item);                        
+                    {
+                        var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                        
+                        var response = await _genericService.UpdateAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), item, controllerActionDescriptor.ControllerName);
                         return CreateResponse(200, true, "Item updated successfully", response);
                     }
-                    else {
+                    else
+                    {
                         return CreateResponse(400, false, "Item data is not valid", item);
-                    }                    
+                    }
                 }
                 else
                 {
@@ -145,17 +151,18 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 return CreateResponse(500, false, $"Error updating item: {ex.Message}", null);
             }
         }
-         
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Remove(int id)
+
+        [HttpDelete]
+        public async Task<IActionResult> Remove()
         {
             try
             {
-                var entity = await _genericService.GetAsync(id);
+                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
                 if (entity != null)
                 {
-                    await _genericService.RemoveAsync(id, entity);                    
-                    return CreateResponse(200, true, "Item deleted successfully",null);
+                    var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                    await _genericService.RemoveAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), entity, controllerActionDescriptor.ControllerName);
+                    return CreateResponse(200, true, "Item deleted successfully", null);
                 }
                 else
                 {
