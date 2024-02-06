@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using ReactiveMicroService.ReportService.API.Models;
 using ReactiveMicroService.ReportService.API.Repository;
@@ -39,7 +40,7 @@ namespace ReactiveMicroService.ReportService.API.Service
             //item.UpdatedIP = _utilityService.GetClientIP();
             //item.UpdatedAt = DateTime.UtcNow;
             //item.IsDeleted = !item.IsActive;
-            return await _repository.Update(item);
+            return await _repository.Update(id,item);
         }
 
         public async Task RemoveAsync(int id, T item)

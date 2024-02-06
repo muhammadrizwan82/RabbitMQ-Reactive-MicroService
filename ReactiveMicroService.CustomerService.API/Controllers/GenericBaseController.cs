@@ -87,12 +87,12 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpGet("GetByKeyValue")]
+        [HttpGet("GetByColumns")]
         public async Task<IActionResult> GetByColumns(Dictionary<string, object> filters)
         {
             try
             {
-                var entity = await _genericService.FilterAsync(filters);
+                var entity = await _genericService.GetByColumnFilter(filters);
                 if (entity == null)
                 {
                     return CreateResponse(200, false, "Item not found", null);
@@ -131,14 +131,13 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                     var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
                     if (entity != null)
                     {
-                        var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
-                        
+                        var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();                        
                         var response = await _genericService.UpdateAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), item, controllerActionDescriptor.ControllerName);
                         return CreateResponse(200, true, "Item updated successfully", response);
                     }
                     else
                     {
-                        return CreateResponse(400, false, "Item data is not valid", item);
+                        return CreateResponse(400, false, "Item not found", item);
                     }
                 }
                 else
@@ -166,7 +165,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
                 }
                 else
                 {
-                    return CreateResponse(400, false, "Item data is not valid", null);
+                    return CreateResponse(400, false, "Item not found", null);
                 }
             }
             catch (Exception ex)

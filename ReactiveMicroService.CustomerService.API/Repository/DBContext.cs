@@ -13,6 +13,6 @@ namespace ReactiveMicroService.CustomerService.API.Repository
         public DbSet<CustomerDevices> CustomerDevices { get; set; }
         public DbSet<CustomerAddresses> CustomerAddresses { get; set; }
 
- 
+   
     }
 }

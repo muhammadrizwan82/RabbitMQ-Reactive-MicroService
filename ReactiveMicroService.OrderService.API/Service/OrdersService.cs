@@ -39,7 +39,10 @@ namespace ReactiveMicroService.OrderService.API.Service
             if (insertedOrder != null)
             {
                 insertedOrder.OrderDisplayId = $"{DateTime.UtcNow.Year}{DateTime.UtcNow.Month.ToString("00")}{DateTime.UtcNow.Day.ToString("00")}-{new Random().Next(1000, 10000)}";
-                await _orderRepository.Update(insertedOrder);
+                await _orderRepository.Update(insertedOrder.Id, insertedOrder);
+                await _utilityService.AddDatatoQueue(insertedOrder, "report.order", new Dictionary<string, object>() {
+                    { "order","new"}
+                });
                 var insertedOrderDetailList = new List<OrderDetails>();
                 foreach (var orderDetail in orderDTO.OrderDetail)
                 {
@@ -60,13 +63,14 @@ namespace ReactiveMicroService.OrderService.API.Service
                     });
                     if (insertedOrderDetail != null)
                     {
+                        await _utilityService.AddDatatoQueue(insertedOrder, "report.orderdetail", new Dictionary<string, object>() {
+                            { "orderdetail","new"}
+                });
                         insertedOrderDetailList.Add(insertedOrderDetail);
                     }
                 }
                 insertedOrder.OrderDetails = insertedOrderDetailList;
-                await _utilityService.AddDatatoQueue(insertedOrder, "report.order", new Dictionary<string, object>() {
-                    { "order","new"}
-                });
+                
                 return insertedOrder;
             }
             else

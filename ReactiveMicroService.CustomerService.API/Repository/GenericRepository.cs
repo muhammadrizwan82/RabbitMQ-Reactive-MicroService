@@ -2,11 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace ReactiveMicroService.CustomerService.API.Repository
 {
     public class GenericRepository<TContext, T> : IGenericRepository<T>
-        where TContext : DbContext
+        where TContext : DBContext
         where T : class
     {
         private readonly TContext _dbContext;
@@ -20,12 +21,35 @@ namespace ReactiveMicroService.CustomerService.API.Repository
 
         public async Task<T> GetById(int id)
         {
-            return await _dbSet.FindAsync(id);
+            // Retrieve the entity by its ID
+            var dbItem = await _dbSet.FindAsync(id);
+
+            // Check if the entity exists and meets the IsActive and IsDeleted conditions
+            if (dbItem != null && (bool)dbItem.GetType().GetProperty("IsActive").GetValue(dbItem) &&
+                !(bool)dbItem.GetType().GetProperty("IsDeleted").GetValue(dbItem))
+            {
+                return dbItem;
+            }
+            else
+            {
+                // Return null or throw an exception indicating that the entity was not found or does not meet the conditions
+                return null; // or throw new Exception("Entity not found or inactive/deleted");
+            }
         }
 
         public async Task<List<T>> GetAll()
         {
-            return await _dbSet.ToListAsync();
+            var dbItems = await _dbSet.ToListAsync();
+
+            if (dbItems != null) {
+                return dbItems.Where(entity => (bool)entity.GetType().GetProperty("IsActive").GetValue(entity) &&
+                                                          !(bool)entity.GetType().GetProperty("IsDeleted").GetValue(entity)).ToList();
+            }
+            else {
+                return null;
+            }
+            
+             
         }
 
         public async Task<T> Insert(T entity)
@@ -145,12 +169,55 @@ namespace ReactiveMicroService.CustomerService.API.Repository
         {
             ParameterExpression parameter = Expression.Parameter(typeof(T), "entity");
             MemberExpression property = Expression.Property(parameter, columnName);
-            ConstantExpression constant = Expression.Constant(value);
 
+            // Get the property type
+            Type propertyType = property.Type;
+
+            // Convert value to the appropriate type based on the property type
+            object convertedValue;
+            if (propertyType == typeof(int))
+            {
+                convertedValue = Convert.ToInt32(value);
+            }
+            else if (propertyType == typeof(bool))
+            {
+                if (value.ToString() == "True" || value.ToString() == "true")
+                {
+                    convertedValue = Convert.ToBoolean(true);
+                }
+                else
+                {
+                    convertedValue = Convert.ToBoolean(false);
+                }
+
+            }
+            else if (propertyType == typeof(string))
+            {
+                convertedValue = value.ToString();
+            }
+            else if (propertyType == typeof(decimal))
+            {
+                convertedValue = Convert.ToDecimal(value);
+            }
+            else if (propertyType == typeof(double))
+            {
+                convertedValue = Convert.ToDouble(value);
+            }
+            else
+            {
+                throw new ArgumentException($"Unsupported property type: {propertyType}");
+            }
+
+            // Create constant expression with the converted value
+            ConstantExpression constant = Expression.Constant(convertedValue);
+
+            // Create binary expression for equality comparison
             BinaryExpression body = Expression.Equal(property, constant);
 
+            // Create lambda expression for filtering
             Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
 
+            // Apply the filter and return the result
             return query.Where(lambda);
         }
     }

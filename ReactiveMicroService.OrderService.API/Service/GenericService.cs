@@ -17,11 +17,14 @@ namespace ReactiveMicroService.OrderService.API.Service
             _utilityService = utilityService;
         }
 
-        public async Task<T> CreateAsync(T item)
+        public async Task<T> CreateAsync(T item, string dataType)
         {
             item.CreatedAt = DateTime.UtcNow;
             item.CreatedIP = _utilityService.GetClientIP();
-            return await _repository.Insert(item);
+            var insertedItem = await _repository.Insert(item);
+            await _utilityService.AddDatatoQueue(insertedItem, "report." + dataType
+                           , new Dictionary<string, object> { { dataType, "new" } });
+            return insertedItem;
         }
 
         public async Task<T> GetAsync(int id)
@@ -34,26 +37,39 @@ namespace ReactiveMicroService.OrderService.API.Service
             return await _repository.GetAll();
         }
 
-        public async Task<T> UpdateAsync(int id, T item)
+        public async Task<T> UpdateAsync(int id, T item, string dataType)
         {
             item.UpdatedIP = _utilityService.GetClientIP();
             item.UpdatedAt = DateTime.UtcNow;
             item.IsDeleted = !item.IsActive;
-            return await _repository.Update(item);
+            //var updatedItem = await _repository.Update(id,item);
+            var updatedItem = await _repository.Update(id, item, e => e.Id, e => e.CreatedAt, e => e.CreatedIP, e => e.CreatedBy);
+            await _utilityService.AddDatatoQueue(updatedItem, "report." + dataType
+                           , new Dictionary<string, object> { { dataType, "update" } });
+            return updatedItem;
         }
 
-        public async Task RemoveAsync(int id, T item)
+        public async Task RemoveAsync(int id, T item, string dataType)
         {
             item.UpdatedIP = _utilityService.GetClientIP();
             item.UpdatedAt = DateTime.UtcNow;
             item.IsActive = false;
             item.IsDeleted = !item.IsActive;
-            await _repository.Delete(id, item);
+            var deletedItem = await _repository.Update(id, item, e => e.Id, e => e.CreatedAt, e => e.CreatedIP, e => e.CreatedBy);
+            await _utilityService.AddDatatoQueue(deletedItem, "report." + dataType
+                          , new Dictionary<string, object> { { dataType, "update" } });
+            //await Task.CompletedTask;
         }
 
-        public async Task<List<T>> FilterAsync(Dictionary<string, object> filters)
+        public async Task<List<T>> GetByColumnFilter(Dictionary<string, object> filters)
         {
             return await _repository.GetByColumns(filters);
         }
+
+        public async Task<T> GetSingleByColumnFilter(Dictionary<string, object> filters)
+        {
+            return await _repository.GetByColumnsFirstOrDefault(filters);
+        }
+
     }
 }

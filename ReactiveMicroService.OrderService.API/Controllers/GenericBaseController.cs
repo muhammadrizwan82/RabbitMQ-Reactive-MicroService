@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace ReactiveMicroService.OrderService.API.Controllers
 {
@@ -26,7 +27,7 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             // When serializing or deserializing objects
             var options = new JsonSerializerOptions
             {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles, 
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 PropertyNameCaseInsensitive = true,
                 // Other options as needed
             };
@@ -52,7 +53,8 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var createdItem = await _genericService.CreateAsync(item);                    
+                    var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                    var createdItem = await _genericService.CreateAsync(item, controllerActionDescriptor.ControllerName);
                     return CreateResponse(200, true, "Item created successfully", createdItem);
                 }
                 else
@@ -66,45 +68,45 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
-        {
-            try
-            {
-                var entity = await _genericService.GetAsync(id);
-                if (entity == null)
-                {
-                    return CreateResponse(200, false, "Item not found", null);
-                }
-
-                return CreateResponse(200, true, "Item retrieved successfully", entity);
-            }
-            catch (Exception ex)
-            {
-                return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
-            }
-        }
-
-        [HttpGet("GetOrderByKeyValue")]
-        public async Task<IActionResult> GetByColumns(Dictionary<string,object> filters)
-        {
-            try
-            {           
-                var entity = await _genericService.FilterAsync(filters);
-                if (entity == null)
-                {
-                    return CreateResponse(200, false, "Item not found", null);
-                }
-
-                return CreateResponse(200, true, "Item retrieved successfully", entity);
-            }
-            catch (Exception ex)
-            {
-                return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
-            }
-        }
-
         [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                if (entity == null)
+                {
+                    return CreateResponse(200, false, "Item not found", null);
+                }
+
+                return CreateResponse(200, true, "Item retrieved successfully", entity);
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
+            }
+        }
+
+        [HttpGet("GetByColumns")]
+        public async Task<IActionResult> GetByColumns(Dictionary<string, object> filters)
+        {
+            try
+            {
+                var entity = await _genericService.GetByColumnFilter(filters);
+                if (entity == null)
+                {
+                    return CreateResponse(200, false, "Item not found", null);
+                }
+
+                return CreateResponse(200, true, "Item retrieved successfully", entity);
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error retrieving item: {ex.Message}", null);
+            }
+        }
+
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -118,22 +120,26 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, T item)
+        [HttpPut]
+        public async Task<IActionResult> Update(T item)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var entity = await _genericService.GetAsync(id);
+
+                    var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
                     if (entity != null)
-                    {                        
-                        var response = await _genericService.UpdateAsync(id,item);                        
+                    {
+                        var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();                        
+                        var response = await _genericService.UpdateAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString())
+                            , item, controllerActionDescriptor.ControllerName);
                         return CreateResponse(200, true, "Item updated successfully", response);
                     }
-                    else {
-                        return CreateResponse(400, false, "Item data is not valid", item);
-                    }                    
+                    else
+                    {
+                        return CreateResponse(400, false, "Item not found", item);
+                    }
                 }
                 else
                 {
@@ -146,20 +152,21 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Remove(int id)
+        [HttpDelete]
+        public async Task<IActionResult> Remove()
         {
             try
             {
-                var entity = await _genericService.GetAsync(id);
+                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
                 if (entity != null)
                 {
-                    await _genericService.RemoveAsync(id, entity);                    
-                    return CreateResponse(200, true, "Item deleted successfully",null);
+                    var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                    await _genericService.RemoveAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), entity, controllerActionDescriptor.ControllerName);
+                    return CreateResponse(200, true, "Item deleted successfully", null);
                 }
                 else
                 {
-                    return CreateResponse(400, false, "Item data is not valid", null);
+                    return CreateResponse(400, false, "Item not found", null);
                 }
             }
             catch (Exception ex)

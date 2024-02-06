@@ -34,7 +34,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
         }
 
         public async Task<List<T>> GetAllAsync()
-        {
+        {            
             return await _repository.GetAll();
         }
 
@@ -56,18 +56,18 @@ namespace ReactiveMicroService.CustomerService.API.Service
             item.UpdatedAt = DateTime.UtcNow;
             item.IsActive = false;
             item.IsDeleted = !item.IsActive;
-            var deletedItem = _repository.Delete(id, item);
+            var deletedItem = await _repository.Update(id, item, e => e.Id, e => e.CreatedAt, e => e.CreatedIP, e => e.CreatedBy);
             await _utilityService.AddDatatoQueue(deletedItem, "report." + dataType
                           , new Dictionary<string, object> { { dataType, "update" } });
-            await deletedItem;
+            //await Task.CompletedTask;
         }
 
-        public async Task<List<T>> FilterAsync(Dictionary<string, object> filters)
+        public async Task<List<T>> GetByColumnFilter(Dictionary<string, object> filters)
         {
             return await _repository.GetByColumns(filters);
         }
 
-        public async Task<T> FilterAsyncFirstOrDefault(Dictionary<string, object> filters)
+        public async Task<T> GetSingleByColumnFilter(Dictionary<string, object> filters)
         {
             return await _repository.GetByColumnsFirstOrDefault(filters);
         }

@@ -22,16 +22,15 @@ namespace ReactiveMicroService.ReportService.API.Configuration
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _iSubscriber.Subscribe(ProcessMessage);
-
             return Task.CompletedTask;
         }
 
+
         private bool ProcessMessage(string message, IDictionary<string, object> headers)
-        {
-            Console.WriteLine("Received message: " + message);
+        {            
             var header = headers.FirstOrDefault();
             string headerValue = "no header value";
-          
+
             if (header.Key != null)
             {
                 if (header.Value is byte[] byteArray)
@@ -51,13 +50,14 @@ namespace ReactiveMicroService.ReportService.API.Configuration
 
                     if (header.Key.ToLower() == "customer")
                     {
-                        var customersService = scope.ServiceProvider.GetRequiredService<CustomersService>();
-                        if (headerValue.ToLower() == "new")
+                        Console.WriteLine("Received message: " + message);
+                        var customer = JsonSerializer.Deserialize<Customers>(message);
+                        if (customer != null)
                         {
-                            var customer = JsonSerializer.Deserialize<Customers>(message);
-                            if (customer != null)
+                            var scopeService = scope.ServiceProvider.GetRequiredService<CustomersService>();
+                            if (headerValue.ToLower() == "new")
                             {
-                                var insertedCustomer = customersService.CreateAsync(new Customers
+                                scopeService.CreateAsync(new Customers
                                 {
                                     Id = customer.Id,
                                     DialCode = customer.DialCode,
@@ -76,50 +76,47 @@ namespace ReactiveMicroService.ReportService.API.Configuration
                                     UpdatedAt = customer.UpdatedAt,
                                     UpdatedBy = customer.UpdatedBy,
                                     UpdatedIP = customer.UpdatedIP
-
                                 });
-                                if (insertedCustomer != null)
-                                {
-                                    var customerDevicesService = scope.ServiceProvider.GetRequiredService<CustomerDevicesService>();
-                                    foreach (var customerDevice in customer.CustomerDevices)
-                                    {
-                                        customerDevicesService.CreateAsync(new CustomerDevices
-                                        {
-                                            CreatedBy = customerDevice.CreatedBy,
-                                            CreatedIP = customerDevice.CreatedIP,
-                                            CreatedAt = customerDevice.CreatedAt,
-                                            IsActive = customerDevice.IsActive,
-                                            IsDeleted = customerDevice.IsDeleted,
-                                            UpdatedAt = customerDevice.UpdatedAt,
-                                            UpdatedBy = customerDevice.UpdatedBy,
-                                            UpdatedIP = customerDevice.UpdatedIP,
-                                            CustomerId = customerDevice.CustomerId,
-                                            DeviceId = customerDevice.DeviceId,
-                                            DeviceToken = customerDevice.DeviceToken,
-                                            UserAgent = customerDevice.UserAgent,
-                                            Id = customerDevice.Id
-                                        });
-                                    }
-                                }
                             }
-                        }
-                        else if (headerValue.ToLower() == "update")
-                        {
-                            var customer = JsonSerializer.Deserialize<Customers>(message);
-                            if (customer != null)
+                            else if (headerValue.ToLower() == "update")
                             {
-                                var updatedCustomer = customersService.UpdateAsync(customer.Id, customer);
-                                if (updatedCustomer != null)
+                                scopeService.UpdateAsync(customer.Id, customer);
+                            }
+                        }                      
+                    }
+
+                    if (header.Key.ToLower() == "customerdevice")
+                    {
+                        Console.WriteLine("Received message: " + message);
+                        var customerDevices = JsonSerializer.Deserialize<CustomerDevices>(message);
+                        if (customerDevices != null)
+                        {
+                            var scopeService = scope.ServiceProvider.GetRequiredService<CustomerDevicesService>();
+                            if (headerValue.ToLower() == "new")
+                            {
+                                scopeService.CreateAsync(new CustomerDevices
                                 {
-                                    var customerDevicesService = scope.ServiceProvider.GetRequiredService<CustomerDevicesService>();
-                                    foreach (var customerDevice in customer.CustomerDevices)
-                                    {
-                                        customerDevicesService.UpdateAsync(customerDevice.Id, customerDevice);
-                                    }
-                                }
+                                    Id = customerDevices.Id,
+                                    CustomerId = customerDevices.CustomerId,
+                                    DeviceId = customerDevices.DeviceId,
+                                    DeviceToken = customerDevices.DeviceToken,
+                                    UserAgent = customerDevices.UserAgent,
+                                    CreatedBy = customerDevices.CreatedBy,
+                                    CreatedIP = customerDevices.CreatedIP,
+                                    CreatedAt = customerDevices.CreatedAt,
+                                    IsActive = customerDevices.IsActive,
+                                    IsDeleted = customerDevices.IsDeleted,
+                                    UpdatedAt = customerDevices.UpdatedAt,
+                                    UpdatedBy = customerDevices.UpdatedBy,
+                                    UpdatedIP = customerDevices.UpdatedIP
+                                });
+                            }
+                            else if (headerValue.ToLower() == "update")
+                            {
+                                scopeService.UpdateAsync(customerDevices.Id, customerDevices);
                             }
                         }
-                    }                    
+                    }
                 }
             }
 

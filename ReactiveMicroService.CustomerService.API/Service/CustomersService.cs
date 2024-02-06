@@ -29,10 +29,10 @@ namespace ReactiveMicroService.CustomerService.API.Service
         public async Task<Customers> Signup(CustomerSignupDTO customerDTO, HttpContext httpContext)
         {
             var insertedCustomer = new Customers();
-            if ((await _customerRepository.GetByColumns(new Dictionary<string, object>
+            if (await _customerRepository.GetByColumnsFirstOrDefault(new Dictionary<string, object>
             {
                 { "EmailAddress", customerDTO.EmailAddress }
-            })).Count == 0)
+            }) == null)
             {
                 insertedCustomer = await _customerRepository.Insert(new Customers()
                 {
@@ -49,12 +49,17 @@ namespace ReactiveMicroService.CustomerService.API.Service
                 });
                 if (insertedCustomer != null)
                 {
-                    var existingDevice = await _customerDeviceRepository.GetByColumns(new Dictionary<string, object>
+                    await _utilityService.AddDatatoQueue(insertedCustomer, "report.customer"
+                        , new Dictionary<string, object> { { "customer", "new" } });
+
+                    var existingDevice = await _customerDeviceRepository.GetByColumnsFirstOrDefault(new Dictionary<string, object>
                     {
                         { "DeviceId", customerDTO.DeviceId },
-                        { "CustomerId", insertedCustomer.Id }
+                        { "CustomerId", insertedCustomer.Id },
+                        { "IsActive", true },
+                        { "IsDeleted", false },
                     });
-                    if (existingDevice.Count == 0)
+                    if (existingDevice == null)
                     {
                         var insertedCustomerDevice = new CustomerDevices();
                         var customerDeviceList = new List<CustomerDevices>();
@@ -67,18 +72,16 @@ namespace ReactiveMicroService.CustomerService.API.Service
                             DeviceId = customerDTO.DeviceId,
                             UserAgent = _utilityService.GetUserAgent(),
                             DeviceToken = await _utilityService.GetDeviceTokenAsync(httpContext)
-                        }); ;
+                        });
 
                         if (insertedCustomerDevice != null)
                         {
+                            await _utilityService.AddDatatoQueue(insertedCustomerDevice, "report.customerdevice"
+                                , new Dictionary<string, object> { { "customerdevice", "new" } });
                             customerDeviceList.Add(insertedCustomerDevice);
                             insertedCustomer.CustomerDevices = customerDeviceList;
                         }
-                    }                    
-                    await _utilityService.AddDatatoQueue(insertedCustomer, "report.customer"
-                            , new Dictionary<string, object> { { "customer", "new" } });
-
-
+                    }
                 }
             }
 
@@ -89,40 +92,45 @@ namespace ReactiveMicroService.CustomerService.API.Service
             var loginToken = new LoginToken();
             try
             {
-                var insertedCustomer = new Customers();
-                insertedCustomer = await _customerRepository.GetByColumnsFirstOrDefault(new Dictionary<string, object>
+                var existingCustomer = new Customers();
+                existingCustomer = await _customerRepository.GetByColumnsFirstOrDefault(new Dictionary<string, object>
                 {
                     { "EmailAddress", loginDTO.EmailAddress },
-                    { "Password", _utilityService.HashPassword(loginDTO.Password) }
+                    { "Password", _utilityService.HashPassword(loginDTO.Password) },
+                    { "IsActive", true },
+                    { "IsDeleted", false },
                 });
 
-                if (insertedCustomer != null)
+                if (existingCustomer != null)
                 {
                     var existingDevice = await _customerDeviceRepository.GetByColumnsFirstOrDefault(new Dictionary<string, object>
                     {
                         { "DeviceId", loginDTO.DeviceId },
-                        { "CustomerId", insertedCustomer.Id }
+                        { "CustomerId", existingCustomer.Id },
+                        { "IsActive", true },
+                        { "IsDeleted", false },
                     });
-                    loginToken.Token = _utilityService.GenerateJwtToken(insertedCustomer);
-                    loginToken.EmailAddress = insertedCustomer.EmailAddress;
+                    loginToken.Token = _utilityService.GenerateJwtToken(existingCustomer);
+                    loginToken.EmailAddress = existingCustomer.EmailAddress;
 
-                    if (existingDevice != null)
+                    if (existingDevice == null)
                     {
                         var insertedCustomerDevice = new CustomerDevices();
-                        var customerDeviceList = new List<CustomerDevices>();
                         insertedCustomerDevice = await _customerDeviceRepository.Insert(new CustomerDevices()
                         {
                             CreatedIP = _utilityService.GetClientIP(),
                             CreatedAt = DateTime.UtcNow,
-                            CreatedBy = insertedCustomer.Id,
-                            CustomerId = insertedCustomer.Id,
+                            CreatedBy = existingCustomer.Id,
+                            CustomerId = existingCustomer.Id,
                             DeviceId = loginDTO.DeviceId,
                             UserAgent = _utilityService.GetUserAgent(),
                             DeviceToken = await _utilityService.GetDeviceTokenAsync(httpContext)
                         });
-
-                        await _utilityService.AddDatatoQueue(insertedCustomer, "report.customerdevice"
-                            , new Dictionary<string, object> { { "customerdevice", "new" } });
+                        if (insertedCustomerDevice != null)
+                        {
+                            await _utilityService.AddDatatoQueue(insertedCustomerDevice, "report.customerdevice"
+                                , new Dictionary<string, object> { { "customerdevice", "new" } });
+                        }
                     }
                 }
             }
