@@ -25,7 +25,6 @@ namespace ReactiveMicroService.ReportService.API.Configuration
             return Task.CompletedTask;
         }
 
-
         private bool ProcessMessage(string message, IDictionary<string, object> headers)
         {            
             var header = headers.FirstOrDefault();
@@ -48,6 +47,7 @@ namespace ReactiveMicroService.ReportService.API.Configuration
                 {
                     var scope = _serviceProvider.CreateScope();
 
+                    #region Customer Synching
                     if (header.Key.ToLower() == "customer")
                     {
                         Console.WriteLine("Received message: " + message);
@@ -84,7 +84,9 @@ namespace ReactiveMicroService.ReportService.API.Configuration
                             }
                         }                      
                     }
+                    #endregion Customer Synching
 
+                    #region Customer Device Synching 
                     if (header.Key.ToLower() == "customerdevice")
                     {
                         Console.WriteLine("Received message: " + message);
@@ -117,6 +119,123 @@ namespace ReactiveMicroService.ReportService.API.Configuration
                             }
                         }
                     }
+                    #endregion
+
+                    #region Customer Address Synching 
+                    if (header.Key.ToLower() == "customeraddress")
+                    {
+                        Console.WriteLine("Received message: " + message);
+                        var customerAddresses = JsonSerializer.Deserialize<CustomerAddresses>(message);
+                        if (customerAddresses != null)
+                        {
+                            var scopeService = scope.ServiceProvider.GetRequiredService<CustomerAddressesService>();
+                            if (headerValue.ToLower() == "new")
+                            {
+                                scopeService.CreateAsync(new CustomerAddresses
+                                {
+                                    Id = customerAddresses.Id,
+                                    CustomerId = customerAddresses.CustomerId,
+                                    Area = customerAddresses.Area,
+                                    City = customerAddresses.City,
+                                    Country = customerAddresses.Country,
+                                    CountryIso2Code = customerAddresses.CountryIso2Code,
+                                    HouseNumber = customerAddresses.HouseNumber,
+                                    Lane = customerAddresses.Lane,
+                                    Sector = customerAddresses.Sector,
+                                    State = customerAddresses.State,
+                                    Town = customerAddresses.Town,
+                                    CreatedBy = customerAddresses.CreatedBy,
+                                    CreatedIP = customerAddresses.CreatedIP,
+                                    CreatedAt = customerAddresses.CreatedAt,
+                                    IsActive = customerAddresses.IsActive,
+                                    IsDeleted = customerAddresses.IsDeleted,
+                                    UpdatedAt = customerAddresses.UpdatedAt,
+                                    UpdatedBy = customerAddresses.UpdatedBy,
+                                    UpdatedIP = customerAddresses.UpdatedIP
+                                });
+                            }
+                            else if (headerValue.ToLower() == "update")
+                            {
+                                scopeService.UpdateAsync(customerAddresses.Id, customerAddresses);
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #region Customer Order Synching 
+                    if (header.Key.ToLower() == "order")
+                    {
+                        Console.WriteLine("Received message: " + message);
+                        var order = JsonSerializer.Deserialize<Orders>(message);
+                        if (order != null)
+                        {
+                            var scopeService = scope.ServiceProvider.GetRequiredService<OrdersService>();
+                            if (headerValue.ToLower() == "new")
+                            {
+                                scopeService.CreateAsync(new Orders
+                                {
+                                    Id = order.Id,
+                                    CustomerId = order.CustomerId,                                   
+                                    CreatedBy = order.CreatedBy,
+                                    CreatedIP = order.CreatedIP,
+                                    CreatedAt = order.CreatedAt,
+                                    IsActive = order.IsActive,
+                                    IsDeleted = order.IsDeleted,
+                                    UpdatedAt = order.UpdatedAt,
+                                    UpdatedBy = order.UpdatedBy,
+                                    UpdatedIP = order.UpdatedIP,
+                                    CustomerAddressId = order.CustomerAddressId,
+                                    DiscountPercentage = order.DiscountPercentage,
+                                    OrderDescription = order.OrderDescription,
+                                    OrderDisplayId = order.OrderDisplayId,
+                                    
+                                });
+                            }
+                            else if (headerValue.ToLower() == "update")
+                            {
+                                scopeService.UpdateAsync(order.Id, order);
+                            }
+                        }
+                    }
+                    #endregion
+
+                    #region Customer OrderDetail Synching 
+                    if (header.Key.ToLower() == "orderdetail")
+                    {
+                        Console.WriteLine("Received message: " + message);
+                        var orderDetail = JsonSerializer.Deserialize<OrderDetails>(message);
+                        if (orderDetail != null)
+                        {
+                            var scopeService = scope.ServiceProvider.GetRequiredService<OrderDetailsService>();
+                            if (headerValue.ToLower() == "new")
+                            {
+                                scopeService.CreateAsync(new OrderDetails
+                                {
+                                    Id = orderDetail.Id,
+                                    OrderId = orderDetail.OrderId,
+                                    CreatedBy = orderDetail.CreatedBy,
+                                    CreatedIP = orderDetail.CreatedIP,
+                                    CreatedAt = orderDetail.CreatedAt,
+                                    IsActive = orderDetail.IsActive,
+                                    IsDeleted = orderDetail.IsDeleted,
+                                    UpdatedAt = orderDetail.UpdatedAt,
+                                    UpdatedBy = orderDetail.UpdatedBy,
+                                    UpdatedIP = orderDetail.UpdatedIP,
+                                    ProductAmount = orderDetail.ProductAmount,
+                                    ProductDiscount = orderDetail.ProductDiscount,
+                                    ProductDiscountedAmount = orderDetail.ProductDiscountedAmount,
+                                    ProductId = orderDetail.ProductId,
+                                    ProductQuantity = orderDetail.ProductQuantity
+                                  
+                                });
+                            }
+                            else if (headerValue.ToLower() == "update")
+                            {
+                                scopeService.UpdateAsync(orderDetail.Id, orderDetail);
+                            }
+                        }
+                    }
+                    #endregion
                 }
             }
 

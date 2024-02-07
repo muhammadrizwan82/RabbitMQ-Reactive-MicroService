@@ -68,12 +68,12 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                var entity = await _genericService.GetAsync(id);
                 if (entity == null)
                 {
                     return CreateResponse(200, false, "Item not found", null);
@@ -120,20 +120,19 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(T item)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, T item)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
 
-                    var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                    var entity = await _genericService.GetAsync(id);
                     if (entity != null)
                     {
-                        var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();                        
-                        var response = await _genericService.UpdateAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString())
-                            , item, controllerActionDescriptor.ControllerName);
+                        var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                        var response = await _genericService.UpdateAsync(id, item, controllerActionDescriptor.ControllerName);
                         return CreateResponse(200, true, "Item updated successfully", response);
                     }
                     else
@@ -152,16 +151,16 @@ namespace ReactiveMicroService.OrderService.API.Controllers
             }
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Remove()
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Remove(int id)
         {
             try
             {
-                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                var entity = await _genericService.GetAsync(id);
                 if (entity != null)
                 {
                     var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
-                    await _genericService.RemoveAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), entity, controllerActionDescriptor.ControllerName);
+                    await _genericService.RemoveAsync(id, entity, controllerActionDescriptor.ControllerName);
                     return CreateResponse(200, true, "Item deleted successfully", null);
                 }
                 else

@@ -76,7 +76,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
                 claims: new List<Claim>() {
                     new Claim(ClaimTypes.NameIdentifier, customers.Id.ToString()),
                     new Claim(ClaimTypes.Email, customers.EmailAddress)
-                }, expires: DateTime.UtcNow.AddHours(24), signingCredentials: signinCredentials);
+                }, expires: DateTime.UtcNow.AddHours(2), signingCredentials: signinCredentials);
             var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
 
             return tokenString; 
@@ -100,7 +100,7 @@ namespace ReactiveMicroService.CustomerService.API.Service
                 // Other options as needed
             };
             
-            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, headers);
+            _publisher.Publish(JsonSerializer.Serialize(item, options), rotuingKey, headers,"30000");
         }
     }
 }

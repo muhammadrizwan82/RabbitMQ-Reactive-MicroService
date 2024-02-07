@@ -22,7 +22,7 @@ builder.Services.AddDbContext<DBContext>(options =>
 });
 
 builder.Services.AddSingleton<IConnectionProvider>(new ConnectionProvider(rabbitMqConnection));
-builder.Services.AddScoped<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),"report-exchange",  ExchangeType.Topic));
+builder.Services.AddScoped<IPublisher>(x => new Publisher(x.GetService<IConnectionProvider>(),"report-exchange",  ExchangeType.Topic,30000));
 builder.Services.AddScoped(typeof(IGenericRepository<Customers>), typeof(GenericRepository<DBContext, Customers>));
 builder.Services.AddScoped(typeof(IGenericRepository<CustomerDevices>), typeof(GenericRepository<DBContext, CustomerDevices>));
 builder.Services.AddScoped(typeof(IGenericRepository<CustomerAddresses>), typeof(GenericRepository<DBContext, CustomerAddresses>));
@@ -30,6 +30,7 @@ builder.Services.AddScoped<UtilityService>();
 builder.Services.AddScoped<CustomersService>();
 builder.Services.AddScoped<CustomerDevicesService>();
 builder.Services.AddScoped<CustomerAddressesService>();
+builder.Services.AddSingleton<TokenBlacklistService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

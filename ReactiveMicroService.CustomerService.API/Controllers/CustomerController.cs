@@ -13,11 +13,13 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
 {
     public class CustomerController : GenericBaseController<Customers>
     {
-        private readonly CustomersService _customersService; 
+        private readonly CustomersService _customersService;
+        private readonly TokenBlacklistService _blacklistService;
 
-        public CustomerController(CustomersService customersService, IPublisher publisher) : base(customersService)
+        public CustomerController(CustomersService customersService, IPublisher publisher, TokenBlacklistService blacklistService) : base(customersService, blacklistService)
         {
-            _customersService = customersService; 
+            _customersService = customersService;
+            _blacklistService = blacklistService;
         }
 
         [AllowAnonymous]

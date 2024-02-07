@@ -58,26 +58,41 @@ namespace ReactiveMicroService.ReportService.API.Repository
             await _dbContext.SaveChangesAsync();
             return insertedEntity.Entity;
         }
-
-        public async Task<T> Update(int id, T entity, params Expression<Func<T, object>>[] propertiesToExclude)
+        public async Task<T> UpdateSepcificProperty(int id, T entity)
         {
-            // Retrieve the existing entity from the database
-            var existingEntity = await _dbSet.FindAsync(id);
-
-            if (existingEntity == null)
+            // Validate input parameters
+            if (entity == null)
             {
-                throw new ArgumentException("Entity not found.");
+                throw new ArgumentNullException(nameof(entity), "Entity cannot be null.");
             }
 
             try
             {
-                // Update only the properties that are allowed to be modified
-                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+                // Retrieve the existing entity from the database
+                var existingEntity = await _dbSet.FindAsync(id);
 
-                // Mark specific properties as unchanged to exclude them from the update
-                foreach (var property in propertiesToExclude)
+                if (existingEntity == null)
                 {
-                    _dbContext.Entry(existingEntity).Property(property).IsModified = false;
+                    throw new ArgumentException("Entity not found.");
+                }
+
+                // Get the primary key property name
+                var primaryKeyPropertyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties
+                    .Select(p => p.Name)
+                    .SingleOrDefault();
+
+                // Update only the properties provided in the entity parameter, excluding the primary key property
+                var entityProperties = typeof(T).GetProperties();
+                foreach (var propertyInfo in entityProperties)
+                {
+                    if (propertyInfo.Name != primaryKeyPropertyName)
+                    {
+                        var newValue = propertyInfo.GetValue(entity);
+                        if (newValue != null)
+                        {
+                            propertyInfo.SetValue(existingEntity, newValue);
+                        }
+                    }
                 }
 
                 // Save changes to the database
@@ -85,9 +100,74 @@ namespace ReactiveMicroService.ReportService.API.Repository
 
                 return existingEntity;
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Handle concurrency conflicts
+                // Example: Log the error, retry the operation, or return a specific response
+                throw new Exception($"Concurrency error occurred while updating the entity: {ex.Message}.");
+            }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while updating the entity.", ex);
+                // Handle other exceptions
+                // Example: Log the error, return a specific response, or rethrow the exception
+                throw new Exception($"An error occurred while updating the entity: {ex.Message}.");
+            }
+        }
+        public async Task<T> Update(int id, T entity, params Expression<Func<T, object>>[] propertiesToExclude)
+        {
+            // Validate input parameters
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity), "Item cannot be null.");
+            }
+
+            try
+            {
+                // Retrieve the existing entity from the database
+                var existingEntity = await _dbSet.FindAsync(id);
+
+                if (existingEntity == null)
+                {
+                    throw new ArgumentException("Item not found.");
+                }
+
+                // Get the primary key property name
+                var primaryKeyPropertyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties
+                    .Select(p => p.Name)
+                    .SingleOrDefault();
+
+                // Update only the properties that are allowed to be modified and are not the primary key
+                foreach (var propertyEntry in _dbContext.Entry(existingEntity).Properties)
+                {
+                    if (propertyEntry.Metadata.Name != primaryKeyPropertyName)
+                    {
+                        propertyEntry.CurrentValue = _dbContext.Entry(entity).Property(propertyEntry.Metadata.Name).CurrentValue;
+                    }
+                }
+
+                // Mark specific properties as unchanged to exclude them from the update
+                foreach (var property in propertiesToExclude)
+                {
+                    _dbContext.Entry(existingEntity).Property(property).IsModified = false;
+                }
+
+
+                // Save changes to the database
+                await _dbContext.SaveChangesAsync();
+
+                return existingEntity;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Handle concurrency conflicts
+                // Example: Log the error, retry the operation, or return a specific response
+                throw new Exception($"Concurrency error occurred while updating the entity: {ex.Message}.");
+            }
+            catch (Exception ex)
+            {
+                // Handle other exceptions
+                // Example: Log the error, return a specific response, or rethrow the exception
+                throw new Exception($"An error occurred while updating the entity: {ex.Message}.");
             }
         }
 
@@ -177,7 +257,7 @@ namespace ReactiveMicroService.ReportService.API.Repository
             object convertedValue;
             if (propertyType == typeof(int))
             {
-                convertedValue = Convert.ToInt32(value);
+                convertedValue = Convert.ToInt32(value.ToString());
             }
             else if (propertyType == typeof(bool))
             {

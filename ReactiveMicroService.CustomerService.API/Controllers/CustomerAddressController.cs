@@ -14,12 +14,15 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
         private readonly CustomerAddressesService _customerAddressesService;
         private readonly IPublisher _publisher;
         private readonly UtilityService _utilityService;
+        private readonly TokenBlacklistService _blacklistService;
 
-        public CustomerAddressController(CustomerAddressesService customerAddressesService, IPublisher publisher, UtilityService utilityService) : base(customerAddressesService)
+        public CustomerAddressController(CustomerAddressesService customerAddressesService, IPublisher publisher, UtilityService utilityService
+            , TokenBlacklistService blacklistService) : base(customerAddressesService, blacklistService)
         {
             _customerAddressesService = customerAddressesService;
             _publisher = publisher;
             _utilityService = utilityService;
+            _blacklistService = blacklistService;
         }
 
         [HttpPost("CreateCustomerAddress")]

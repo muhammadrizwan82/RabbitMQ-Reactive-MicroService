@@ -43,8 +43,8 @@ namespace ReactiveMicroService.CustomerService.API.Service
             item.UpdatedIP = _utilityService.GetClientIP();
             item.UpdatedAt = DateTime.UtcNow;
             item.IsDeleted = !item.IsActive;
-            //var updatedItem = await _repository.Update(id,item);
-            var updatedItem = await _repository.Update(id, item, e => e.Id, e => e.CreatedAt, e => e.CreatedIP, e => e.CreatedBy);
+            var updatedItem = await _repository.UpdateSepcificProperty(id,item);
+            //var updatedItem = await _repository.Update(id, item, e => e.Id, e => e.CreatedAt, e => e.CreatedIP, e => e.CreatedBy);
             await _utilityService.AddDatatoQueue(updatedItem, "report." + dataType
                            , new Dictionary<string, object> { { dataType, "update" } });
             return updatedItem;

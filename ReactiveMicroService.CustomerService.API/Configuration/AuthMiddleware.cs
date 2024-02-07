@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.Controllers;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ReactiveMicroService.CustomerService.API.DTO;
+using ReactiveMicroService.CustomerService.API.Service;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -14,11 +17,14 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IConfiguration _configuration;
+        private readonly TokenBlacklistService _blacklistService;
 
-        public AuthMiddleware(IConfiguration configuration)
+        public AuthMiddleware(IConfiguration configuration, TokenBlacklistService blacklistService)
         {
             _configuration = configuration;
             _tokenHandler = new JwtSecurityTokenHandler();
+            _tokenValidationParameters = new TokenValidationParameters();
+            _blacklistService = blacklistService;
 
             // Configure token validation parameters
             _tokenValidationParameters = new TokenValidationParameters
@@ -37,22 +43,38 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            
+
             var controllerActionDescriptor = context.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
 
             if (controllerActionDescriptor.ControllerName != "customers" && (controllerActionDescriptor.ActionName.ToLower() != "login" &&
                     controllerActionDescriptor.ActionName.ToLower() != "signup"))
             {
+                var options = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                    PropertyNameCaseInsensitive = true,
+                    // Other options as needed
+                };
+
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                
+
                 if (string.IsNullOrEmpty(token))
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    var options = new JsonSerializerOptions
-                    {
-                        ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                        PropertyNameCaseInsensitive = true,
-                        // Other options as needed
-                    };
+                   
                     var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync(response);
+                    return;
+                }
+
+                if (_blacklistService.IsTokenBlacklisted(token))
+                {
+                    // Token is blacklisted, reject the request
+                    var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     await context.Response.WriteAsync(response);
                     return;
                 }

@@ -8,6 +8,7 @@ namespace ReactiveMicroService.ReportService.API.Repository
         Task<T> GetById(int id);
         Task<List<T>> GetAll();
         Task<T> Insert(T entity);
+        Task<T> UpdateSepcificProperty(int id, T entity);
         Task<T> Update(int id, T entity, params Expression<Func<T, object>>[] propertiesToExclude);
         Task<T> Update(int id, T entity);
         Task Delete(int id, T entity);

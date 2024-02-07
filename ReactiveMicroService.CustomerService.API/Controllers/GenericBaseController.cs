@@ -16,12 +16,14 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
     public abstract class GenericBaseController<T> : ControllerBase where T : BaseModel
     {
         private readonly GenericService<T> _genericService;
+        private readonly TokenBlacklistService _blacklistService; 
 
-        public GenericBaseController(GenericService<T> genericService)
+        public GenericBaseController(GenericService<T> genericService, TokenBlacklistService blacklistService)
         {
             _genericService = genericService;
+            _blacklistService = blacklistService;
         }
-
+    
         protected IActionResult CreateResponse(int statusCode, bool success, string? message, object? data)
         {
             // When serializing or deserializing objects
@@ -68,12 +70,12 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                var entity = await _genericService.GetAsync(id);
                 if (entity == null)
                 {
                     return CreateResponse(200, false, "Item not found", null);
@@ -120,19 +122,19 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(T item)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id,T item)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
                     
-                    var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                    var entity = await _genericService.GetAsync(id);
                     if (entity != null)
                     {
                         var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();                        
-                        var response = await _genericService.UpdateAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), item, controllerActionDescriptor.ControllerName);
+                        var response = await _genericService.UpdateAsync(id, item, controllerActionDescriptor.ControllerName);
                         return CreateResponse(200, true, "Item updated successfully", response);
                     }
                     else
@@ -151,20 +153,22 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Remove()
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Remove(int id)
         {
             try
             {
-                var entity = await _genericService.GetAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()));
+                var entity = await _genericService.GetAsync(id);
                 if (entity != null)
                 {
                     var controllerActionDescriptor = HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
-                    await _genericService.RemoveAsync(Convert.ToInt32(HttpContext.Items["UserId"].ToString()), entity, controllerActionDescriptor.ControllerName);
+                    await _genericService.RemoveAsync(id, entity, controllerActionDescriptor.ControllerName);
+                    _blacklistService.AddToBlacklist(HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last());
                     return CreateResponse(200, true, "Item deleted successfully", null);
                 }
                 else
                 {
+                    _blacklistService.AddToBlacklist(HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last());
                     return CreateResponse(400, false, "Item not found", null);
                 }
             }
