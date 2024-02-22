@@ -63,7 +63,7 @@ namespace ReactiveMicroService.OrderService.API.Service
                     });
                     if (insertedOrderDetail != null)
                     {
-                        await _utilityService.AddDatatoQueue(insertedOrder, "report.orderdetail", new Dictionary<string, object>() {
+                        await _utilityService.AddDatatoQueue(insertedOrderDetail, "report.orderdetail", new Dictionary<string, object>() {
                             { "orderdetail","new"}
                 });
                         insertedOrderDetailList.Add(insertedOrderDetail);
@@ -78,21 +78,19 @@ namespace ReactiveMicroService.OrderService.API.Service
                 return null;
             }
         }
-        public async Task<Orders> GetOrderSummary(int OrderId)
+        public async Task<Orders> GetOrderSummary(string OrderId)
         {
-            var order = await _orderRepository.GetById(OrderId);
+            var filter = new Dictionary<string, object>();
+            filter.Add("OrderId", OrderId);
+            var order = await  _orderRepository.GetByColumnsFirstOrDefault(filter);            
             if (order != null)
             {
-                var filter = new Dictionary<string, object>();
+                filter = new Dictionary<string, object>();
                 filter.Add("OrderId", order.Id);
                 order.OrderDetails = await _orderDetailRepository.GetByColumns(filter);
-                return order;
             }
-            else
-            {
-                return null;
-            }
-
+             
+            return order;
         }
     }
 }

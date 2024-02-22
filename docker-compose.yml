@@ -1,22 +1,23 @@
 version: '3.1'
 
 services:
-
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
+    restart: always
     ports:
         - 5672:5672
         - 15672:15672
     volumes:
-        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Publisher-Subscriber\metadata\data\rabbitmq\data\:/var/lib/rabbitmq/
-        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Publisher-Subscriber\metadata\data\rabbitmq\log\:/var/log/rabbitmq
+        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\rabbitmq\data\:/var/lib/rabbitmq/
+        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\rabbitmq\log\:/var/log/rabbitmq
     networks:
         - rabbitmq_go_net
 
   customerdb:
     image: mysql:latest
     container_name: customerdb-container
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: customeradmin123
       MYSQL_DATABASE: customerdb
@@ -24,10 +25,15 @@ services:
       MYSQL_PASSWORD: customerdb123
     ports:
       - "3306:3306"
+    volumes:
+        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\db\customerdb\:/var/lib/mysql/        
+    networks:
+        - rabbitmq_go_net
 
   orderdb:
     image: mysql:latest
     container_name: orderdb-container
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: orderadmin123
       MYSQL_DATABASE: orderdb
@@ -35,10 +41,15 @@ services:
       MYSQL_PASSWORD: orderdb123
     ports:
       - "3307:3306"
+    volumes:
+        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\db\orderdb\:/var/lib/mysql/        
+    networks:
+        - rabbitmq_go_net
 
   shipmentdb:
     image: mysql:latest
     container_name: shipmentdb-container
+    restart: always    
     environment:
       MYSQL_ROOT_PASSWORD: shipmentadmin123
       MYSQL_DATABASE: shipmentdb
@@ -46,10 +57,15 @@ services:
       MYSQL_PASSWORD: shipmentdb123
     ports:
       - "3308:3306"    
+    volumes:
+        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\db\shipmentdb\:/var/lib/mysql/        
+    networks:
+        - rabbitmq_go_net
 
   reportdb:
     image: mysql:latest
     container_name: reportdb-container
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: reportadmin123
       MYSQL_DATABASE: reportdb
@@ -57,6 +73,10 @@ services:
       MYSQL_PASSWORD: reportdb123
     ports:
       - "3309:3306"
+    volumes:
+        - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\db\reportdb\:/var/lib/mysql/        
+    networks:
+        - rabbitmq_go_net
       
 networks:
   rabbitmq_go_net:

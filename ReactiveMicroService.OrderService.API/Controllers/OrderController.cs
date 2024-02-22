@@ -12,11 +12,12 @@ namespace ReactiveMicroService.OrderService.API.Controllers
 {
     public class OrderController : GenericBaseController<Orders>
     {
-        private readonly OrdersService _orderService; 
-
-        public OrderController(OrdersService orderService) : base(orderService)
+        private readonly OrdersService _orderService;
+        private readonly TokenBlacklistService _blacklistService;
+        public OrderController(OrdersService orderService, TokenBlacklistService blacklistService) : base(orderService, blacklistService)
         {
             _orderService = orderService;
+            _blacklistService = blacklistService;
         }
 
         [HttpPost("CreateNewOrder")]
@@ -42,7 +43,7 @@ namespace ReactiveMicroService.OrderService.API.Controllers
         }
 
         [HttpGet("GetOrderSummary/{OrderId}")]
-        public async Task<IActionResult> GetOrderSummary(int OrderId)
+        public async Task<IActionResult> GetOrderSummary(string OrderId)
         {
             try
             {

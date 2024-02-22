@@ -37,6 +37,8 @@ namespace ReactiveMicroService.ReportService.API.Configuration
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            await next(context);
+            /*
             var controllerActionDescriptor = context.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
 
             if (controllerActionDescriptor.ControllerName != "customers" && (controllerActionDescriptor.ActionName.ToLower() != "login" &&
@@ -91,6 +93,7 @@ namespace ReactiveMicroService.ReportService.API.Configuration
             {
                 await next(context);
             }
+            */
         }
     }
 }

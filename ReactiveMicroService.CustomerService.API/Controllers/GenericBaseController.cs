@@ -11,8 +11,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 namespace ReactiveMicroService.CustomerService.API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    [ApiController]    
     public abstract class GenericBaseController<T> : ControllerBase where T : BaseModel
     {
         private readonly GenericService<T> _genericService;
@@ -48,7 +47,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             return StatusCode(statusCode, response);
         }
 
-        [HttpPost]
+        [HttpPost("Post")]
         public async Task<IActionResult> Create(T item)
         {
             try
@@ -70,7 +69,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("Get/{id}")]
         public async Task<IActionResult> Get(int id)
         {
             try
@@ -122,7 +121,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Update/{id}")]
         public async Task<IActionResult> Update(int id,T item)
         {
             try
@@ -153,7 +152,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Remove/{id}")]
         public async Task<IActionResult> Remove(int id)
         {
             try

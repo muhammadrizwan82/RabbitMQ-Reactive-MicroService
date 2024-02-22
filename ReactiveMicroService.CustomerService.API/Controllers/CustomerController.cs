@@ -21,8 +21,7 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             _customersService = customersService;
             _blacklistService = blacklistService;
         }
-
-        [AllowAnonymous]
+        
         [HttpPost("Signup")]
         public async Task<IActionResult> Signup(CustomerSignupDTO customerDTO)
         {
@@ -50,7 +49,6 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             }
         }
 
-        [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {

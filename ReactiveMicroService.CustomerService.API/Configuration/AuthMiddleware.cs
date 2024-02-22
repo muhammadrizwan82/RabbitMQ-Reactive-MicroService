@@ -29,7 +29,6 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
             // Configure token validation parameters
             _tokenValidationParameters = new TokenValidationParameters
             {
-
                 ValidateIssuerSigningKey = true,
                 ValidateIssuer = true,
                 ValidateAudience = true,
@@ -43,76 +42,63 @@ namespace ReactiveMicroService.CustomerService.API.Configuration
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            
-
-            var controllerActionDescriptor = context.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
-
-            if (controllerActionDescriptor.ControllerName != "customers" && (controllerActionDescriptor.ActionName.ToLower() != "login" &&
-                    controllerActionDescriptor.ActionName.ToLower() != "signup"))
+            var options = new JsonSerializerOptions
             {
-                var options = new JsonSerializerOptions
-                {
-                    ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                    PropertyNameCaseInsensitive = true,
-                    // Other options as needed
-                };
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                PropertyNameCaseInsensitive = true,
+                // Other options as needed
+            };
+            await next(context);
+            //var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
-                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                
+            //    var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
+            //    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //    await context.Response.WriteAsync(response);
+            //    return;
+            //}
 
-                if (string.IsNullOrEmpty(token))
-                {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                   
-                    var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync(response);
-                    return;
-                }
+            //if (_blacklistService.IsTokenBlacklisted(token))
+            //{
+            //    // Token is blacklisted, reject the request
+            //    var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
+            //    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //    await context.Response.WriteAsync(response);
+            //    return;
+            //}
 
-                if (_blacklistService.IsTokenBlacklisted(token))
-                {
-                    // Token is blacklisted, reject the request
-                    var response = JsonSerializer.Serialize(new LoginToken() { Message = "Invalid token" }, options);
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync(response);
-                    return;
-                }
+            //try
+            //{
+            //    // Validate token
+            //    SecurityToken validatedToken;
+            //    var principal = _tokenHandler.ValidateToken(token, _tokenValidationParameters, out validatedToken);
 
-                try
-                {
-                    // Validate token
-                    SecurityToken validatedToken;
-                    var principal = _tokenHandler.ValidateToken(token, _tokenValidationParameters, out validatedToken);
+            //    // Extract claims
+            //    var customerId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //    var emailAddress = principal.FindFirst(ClaimTypes.Email)?.Value;
+            //    // Extract other claims as needed
 
-                    // Extract claims
-                    var customerId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    var emailAddress = principal.FindFirst(ClaimTypes.Email)?.Value;
-                    // Extract other claims as needed
+            //    // Add claims to the HttpContext for further processing
+            //    context.Items["UserId"] = customerId;
+            //    context.Items["Username"] = emailAddress;
 
-                    // Add claims to the HttpContext for further processing
-                    context.Items["UserId"] = customerId;
-                    context.Items["Username"] = emailAddress;
+            //    await next(context);
+            //}
+            //catch (SecurityTokenException)
+            //{
+            //    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //    await context.Response.WriteAsync("Invalid JWT token");
+            //    return;
+            //}
+            //catch (Exception ex)
+            //{
+            //    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            //    await context.Response.WriteAsync($"Internal server error: {ex.Message}");
+            //    return;
+            //}
 
-                    await next(context);
-                }
-                catch (SecurityTokenException)
-                {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync("Invalid JWT token");
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    await context.Response.WriteAsync($"Internal server error: {ex.Message}");
-                    return;
-                }
-            }
-            else
-            {
-                await next(context);
-            }
         }
     }
 }

@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
-using ReactiveMicroService.OrderService.API.DTO;
-using ReactiveMicroService.OrderService.API.Service;
+using ReactiveMicroService.ShipmentService.API.DTO;
+using ReactiveMicroService.ShipmentService.API.Service;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ReactiveMicroService.OrderService.API.Configuration
+namespace ReactiveMicroService.ShipmentService.API.Configuration
 {
     public class AuthMiddleware : IMiddleware
     {
@@ -48,8 +48,9 @@ namespace ReactiveMicroService.OrderService.API.Configuration
                 // Other options as needed
             };
             await next(context);
+
             /*
-             var controllerActionDescriptor = context.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
+                         var controllerActionDescriptor = context.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
 
             if (controllerActionDescriptor == null)
             {

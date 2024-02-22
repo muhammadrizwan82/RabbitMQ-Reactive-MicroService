@@ -1,43 +1,47 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using ReactiveMicroService.ShipmentService.API.DTO;
+using ReactiveMicroService.ShipmentService.API.Models;
+using ReactiveMicroService.ShipmentService.API.Service;
 
 namespace ReactiveMicroService.ShipmentService.API.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ShipmentController : ControllerBase
+{    
+    public class ShipmentController : GenericBaseController<Shipments>
     {
-        // GET: api/<ShipmentController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        private readonly ShipmentsService _shipmentService;
+        private readonly TokenBlacklistService _tokenBlacklistService;
 
-        // GET api/<ShipmentController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        public ShipmentController(ShipmentsService shipmentService,TokenBlacklistService tokenBlacklistService) : base(shipmentService, tokenBlacklistService)
         {
-            return "value";
+            _tokenBlacklistService = tokenBlacklistService;
+            _shipmentService = shipmentService;
         }
-
-        // POST api/<ShipmentController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        
+        [HttpPost("CreateShipment")]
+        public async Task<IActionResult> CreateShipment(ShipmentDTO shipmentDTO)
         {
-        }
-
-        // PUT api/<ShipmentController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ShipmentController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var createdItem = await _shipmentService.CreateShipmentAsync(shipmentDTO, HttpContext);
+                    if (createdItem.Id == 0)
+                    {
+                        return CreateResponse(400, true, "Order shipment already exists", shipmentDTO);
+                    }
+                    else
+                    {
+                        return CreateResponse(200, true, "Item created successfully", createdItem);
+                    }
+                }
+                else
+                {
+                    return CreateResponse(400, false, "Item data is not valid", shipmentDTO);
+                }
+            }
+            catch (Exception ex)
+            {
+                return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
+            }
         }
     }
 }

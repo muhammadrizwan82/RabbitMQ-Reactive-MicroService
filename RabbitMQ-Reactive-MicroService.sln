@@ -18,7 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveMicroService.Entity", "ReactiveMicroService.Entity\ReactiveMicroService.Entity.csproj", "{ECB4433C-AB8E-44B2-90DC-8103DC6F4201}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.CustomerService.API", "ReactiveMicroService.CustomerService.API\ReactiveMicroService.CustomerService.API.csproj", "{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveMicroService.CustomerService.API", "ReactiveMicroService.CustomerService.API\ReactiveMicroService.CustomerService.API.csproj", "{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveMicroService.CustomerService.Web", "ReactiveMicroService.CustomerService.Web\ReactiveMicroService.CustomerService.Web.csproj", "{F885B2C3-DCB4-4215-9B88-AB2DF74EC64E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,10 @@ Global
 		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D96412A4-3D57-4B2E-917A-AD8C1EB596CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F885B2C3-DCB4-4215-9B88-AB2DF74EC64E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F885B2C3-DCB4-4215-9B88-AB2DF74EC64E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F885B2C3-DCB4-4215-9B88-AB2DF74EC64E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F885B2C3-DCB4-4215-9B88-AB2DF74EC64E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ReactiveMicroService.OrderService.API.DTO;
-using ReactiveMicroService.OrderService.API.Models;
-using ReactiveMicroService.OrderService.API.Service;
+using ReactiveMicroService.ShipmentService.API.DTO;
+using ReactiveMicroService.ShipmentService.API.Models;
+using ReactiveMicroService.ShipmentService.API.Service;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace ReactiveMicroService.OrderService.API.Controllers
+namespace ReactiveMicroService.ShipmentService.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]    

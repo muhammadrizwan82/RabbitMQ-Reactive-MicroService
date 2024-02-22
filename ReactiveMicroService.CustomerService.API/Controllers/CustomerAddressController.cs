@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Plain.RabbitMQ;
 using ReactiveMicroService.CustomerService.API.DTO;
@@ -52,6 +53,6 @@ namespace ReactiveMicroService.CustomerService.API.Controllers
             {
                 return CreateResponse(500, false, $"Error creating item: {ex.Message}", null);
             }
-        }
+        }        
     }
 }

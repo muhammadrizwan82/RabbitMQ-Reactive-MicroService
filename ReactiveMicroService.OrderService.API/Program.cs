@@ -26,11 +26,14 @@ builder.Services.AddSingleton<IConnectionProvider>(new ConnectionProvider(rabbit
 builder.Services.AddScoped<IPublisher>(x=> new Publisher(x.GetService<IConnectionProvider>(),
     "report-exchange",
     ExchangeType.Topic));
+
 builder.Services.AddScoped(typeof(IGenericRepository<Orders>), typeof(GenericRepository<DBContext, Orders>));
 builder.Services.AddScoped(typeof(IGenericRepository<OrderDetails>), typeof(GenericRepository<DBContext, OrderDetails>));
 builder.Services.AddScoped<UtilityService>();
 builder.Services.AddScoped<OrdersService>();
 builder.Services.AddScoped<OrderDetailsService>();
+builder.Services.AddSingleton<TokenBlacklistService>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
