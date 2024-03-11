@@ -6,8 +6,7 @@ services:
     container_name: 'rabbitmq'
     restart: always
     ports:
-        - 5672:5672
-        - 15672:15672
+        - 5672:5672        
     volumes:
         - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\rabbitmq\data\:/var/lib/rabbitmq/
         - E:\Project\Learning\RabbitMQ-Excercise\RabbitMQ-Reactive-MicroService\metadata\rabbitmq\log\:/var/log/rabbitmq
